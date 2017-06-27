@@ -13,16 +13,17 @@
 
 username="#the-lab"
 message="Yousa job is finished, ${USER}!"
+webhook="your-webhook-here"
+
 attached=0
 echoonly=0
-webhook="your-webhook-here"
 
 source ~/.jarjar
 
 # command line arguments http://stackoverflow.com/a/14203146/353278
 OPTIND=1
 
-while getopts "m:u:re" opt; do
+while getopts "m:u:w:re" opt; do
     case "$opt" in
     m)
         message=$OPTARG
@@ -35,6 +36,9 @@ while getopts "m:u:re" opt; do
         ;;
     e)
         echoonly=1
+        ;;
+    w)
+        webhook=$OPTARG
         ;;
     esac
 done

@@ -1,2 +1,4 @@
+# uncomment the lines that you would like to configure
 #username="@customuser"
 #message="Custom message"
+#webhook="your-webhook-here"
