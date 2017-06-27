@@ -13,20 +13,22 @@ Jarjar is a collection of scripts that lets you programmatically send notificati
 
 - Echo statements to your Slack instance in your Python code: 
 
+```
     from jarjar import jarjar
     jj = jarjar("#slack-team")
     jj.post("Arbitrary message!")
+```
 
 # How do I install jarjar?
 
 - To install the bash script, place `sh/jarjar` in your path.
-- To install the python script, place the python directory to your python modules directory and rename it to `jarjar`
+- To install the python script, place the `python` directory to your python modules directory and rename it to `jarjar`
 
 # How do I configure jarjar?
 
 - For both python and bash scripts, it is recommended that you set your Slack webhook directly in the code. Simply replace `your-webhook-here` with your Slack webhook URL, e.g. `https://hooks.slack.com/services/your-webhook`
 - You can also specify a default username, message, and webhook by modifying the appropriate lines in `sh/jarjar`
-- The bash script allows you to configure a custom message, username, and webhook by specificying them in `~/.jarjar`. See `sh/.jarjar` for an example
+- The bash script also allows you to configure a custom message, username, and webhook by specificying them in `~/.jarjar`. See `sh/.jarjar` for an example
 - You can override a webhook in your python code, e.g., `jj = jarjar("#slack-team", url="your-webhook-here")`
 
 # Additional options for bash jarjar
