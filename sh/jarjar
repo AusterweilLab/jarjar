@@ -1,0 +1,57 @@
+#!/bin/bash
+
+# example usage: ./jarjar [options] python <script>
+# -m "message from jarjar" (custom completion message)
+# -u @jeffzemla (slack user or channel to alert)
+# -r (attaches screen immediately)
+# -e (echos message directly to channel only-- does not start screen or run process)
+#
+# Alternatively, set your custom username and message and webhook in ~/.jarjar, i.e.
+# message="Completion message"
+# username="@jeffzemla"
+# webhook="your-webhook-here"
+
+username="#the-lab"
+message="Yousa job is finished, ${USER}!"
+attached=0
+echoonly=0
+webhook="your-webhook-here"
+
+source ~/.jarjar
+
+# command line arguments http://stackoverflow.com/a/14203146/353278
+OPTIND=1
+
+while getopts "m:u:re" opt; do
+    case "$opt" in
+    m)
+        message=$OPTARG
+        ;;
+    u)
+        username=$OPTARG
+        ;;
+    r)
+        attached=1
+        ;;
+    e)
+        echoonly=1
+        ;;
+    esac
+done
+
+shift $((OPTIND-1))
+
+#[ "$1" = "--" ] && shift
+
+if [ "$echoonly" == 1 ]; then
+    curl -s -X POST --data-urlencode "payload={\"text\": \"${message}\", \"channel\": \"${username}\"}" ${webhook}
+else
+    cmd="$@ && curl -s -X POST --data-urlencode 'payload={\"text\": \"${message}\", \"channel\": \"${username}\"}' ${webhook} && exit"
+    screen -Dm &
+    screenpid=$(echo $!)
+    screen -S $screenpid -p 0 -X stuff "${cmd}$(printf \\r)"
+
+    if [ "$attached" == 1 ]; then
+        screen -r $screenpid
+    fi
+fi
