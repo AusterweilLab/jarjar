@@ -12,6 +12,7 @@ Jarjar is a collection of scripts that lets you programmatically send notificati
 ## In python:
 
 - Echo statements to your Slack instance in your Python code: 
+
     from jarjar import jarjar
     jj = jarjar("#slack-team")
     jj.post("Arbitrary message!")
