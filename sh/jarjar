@@ -6,12 +6,12 @@
 # -r (attaches screen immediately)
 # -e (echos message directly to channel only-- does not start screen or run process)
 #
-# Alternatively, set your custom username and message and webhook in ~/.jarjar, i.e.
+# Alternatively, set your custom channel and message and webhook in ~/.jarjar, i.e.
 # message="Completion message"
-# username="@jeffzemla"
+# channel="@jeffzemla"
 # webhook="your-webhook-here"
 
-username="#the-lab"
+channel="#the-lab"
 message="Yousa job is finished, ${USER}!"
 webhook="your-webhook-here"
 
@@ -29,7 +29,7 @@ while getopts "m:u:w:re" opt; do
         message=$OPTARG
         ;;
     u)
-        username=$OPTARG
+        channel=$OPTARG
         ;;
     r)
         attached=1
@@ -48,9 +48,9 @@ shift $((OPTIND-1))
 #[ "$1" = "--" ] && shift
 
 if [ "$echoonly" == 1 ]; then
-    curl -s -X POST --data-urlencode "payload={\"text\": \"${message}\", \"channel\": \"${username}\"}" ${webhook}
+    curl -s -X POST --data-urlencode "payload={\"text\": \"${message}\", \"channel\": \"${channel}\"}" ${webhook}
 else
-    cmd="$@ && curl -s -X POST --data-urlencode 'payload={\"text\": \"${message}\", \"channel\": \"${username}\"}' ${webhook} && exit"
+    cmd="$@ && curl -s -X POST --data-urlencode 'payload={\"text\": \"${message}\", \"channel\": \"${channel}\"}' ${webhook} && exit"
     screen -Dm &
     screenpid=$(echo $!)
     screen -S $screenpid -p 0 -X stuff "${cmd}$(printf \\r)"

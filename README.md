@@ -1,38 +1,69 @@
-# jarjar
+# jarjar slack notifier
 
-Jarjar is a collection of scripts that lets you programmatically send notifications to your Slack instance.
+Jarjar is a collection of scripts that lets you programatically send notifications to your Slack team. 
 
 # What can jarjar do for me?
 
-## In bash:
+Here are some things _we_ use it for:
 
-- Echo statements to your Slack instance: `jarjar -e -u #slack-team -m "Hi, Slack users!"`
-- Notify you when your code is does running: `jarjar -u @slack-user -m "Your job is finished!" python my-script.py`
+- Notify users when their jobs (simulations, backups, etc) are completed.
+- Combine jarjar with cron to send out daily positive vibes.
+- Sending reminders to a group.
 
-## In python:
+## But How?
 
-- Echo statements to your Slack instance in your Python code: 
+We have designed two interfaces into jarjar: a shell command and a Python Module.
 
+#The Shell Command
+
+The [`sh/`](sh/) directory contains a shell command `jarjar` and a configuration file `.jarjar`.
+
+Fill the configuration file out with useful defaults. Critically, you'll want to paste in your [Slack Webook](https://api.slack.com/incoming-webhooks) so that jarjar knows where to send the message. Then put the configuration file in your home directory (`~/`), that's where jarjar will look for it. Don't worry, you can override those defaults later.
+
+Then, make sure the `jarjar` _script_ is in your path. After that, you can use it like so:
+
+```sh
+# echo the default message to the default channel
+./jarjar -e
+
+# echo a message to the #general channel
+./jarjar -e -u "#general" -m "Hi, everyone!!"
+
+# Send yourself a notification when a script is completed
+./jarjar -u @username -m "Your job is finished!" python my-script.py
+
+# send a message to the non-default slack team
+./jarjar -e @username -m "Hi!" -w "their-webhook-url"
 ```
-    from jarjar import jarjar
-    jj = jarjar("#slack-team")
-    jj.post("Arbitrary message!")
+
+## Modifiers
+
+| Modifier | Description | 
+|   ---    |     ---     |
+|   `-e`   | Echo the message. If this flag is not included, jarjar wait until a provided process is completed to send the message. By default (without the `-e` flag), jarjar launches a screen with your script (which terminates when your script ends). You can always resume a screen launched by jarjar by finding the appropriate PID: `screen -ls` and `screen -r PID`. |
+|   `-m`   | Message to be sent |
+|   `-u`   | Username (or channel). Usernames must begin with `@`, channels with `#`. |
+|   `-w`   | Webhook for the Slack team. |
+
+# The Python Module:
+
+This module is designed to be included at the end of a Python script, and has similar functionality as the shell command. Importing the jarjar module provides a simple class, which is initialized by a Slack webhook. The `post` method allows you to send a message to a specified channel.
+
+Installation is simple: make sure the [`python/jarjar`](python/jarjar/) folder is on your current path (e.g., copy it to your working directory, or your modules directory). Then you can use it as follows:
+
+```python
+from jarjar import jarjar
+jj = jarjar("slack-webhook-url") # initialize with your webhook
+jj.post("Hi!", "@username") # send a message to a user
+jj.post("Hi!", "#channel") # send a message to a channel
 ```
 
-# How do I install jarjar?
 
-- To install the bash script, place `sh/jarjar` in your path.
-- To install the python script, place the `python` directory to your python modules directory and rename it to `jarjar`
+# What is my team's webhook?
 
-# How do I configure jarjar?
+You'll need to configure [Incoming Webhooks](https://api.slack.com/incoming-webhooks) for your Slack team. You need to specify a default channel (which jarjar overrides), and Slack will give you a webhook url. That's it! 
 
-- For both python and bash scripts, it is recommended that you set your Slack webhook directly in the code. Simply replace `your-webhook-here` with your Slack webhook URL, e.g. `https://hooks.slack.com/services/your-webhook`
-- You can also specify a default username, message, and webhook by modifying the appropriate lines in `sh/jarjar`
-- The bash script also allows you to configure a custom message, username, and webhook by specificying them in `~/.jarjar`. See `sh/.jarjar` for an example
-- You can override a webhook in your python code, e.g., `jj = jarjar("#slack-team", url="your-webhook-here")`
+When you're setting things up, you can also specify a custom name and custom icon. We named our webhook robot `jar-jar`, and we used [this icon](http://i.imgur.com/hTHrg6i.png | width=50), so messages look like this:
 
-# Additional options for bash jarjar
-- You can override the webhook using `-w your-webhook-here`
-- You can override the username using `-u username` (username can be a @username or #channel)
-- You can override the message using `-m "your message here"`
-- By default (without the `-e` flag), bash jarjar launches a screen with your script (which terminates when your script ends). You can immediately attach this screen using `-r` (and detach using `ctrl+A+D` as usual). This is useful in case your Python code has an error, which will prevent the screen from terminating. You can always resume a screen launched by jarjar by finding the appropriate PID: `screen -ls` and `screen -r PID`
+![](http://i.imgur.com/g9RG16j.png)
+
