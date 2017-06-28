@@ -15,6 +15,34 @@ class jarjar():
         """
         return self.post(text, **kwargs)
 
+    def attach(self, fields):
+        import time
+
+        json_string = {
+            "channel": self.default_channel,
+            "attachments": [
+                {
+                    "fallback": "Your table is ready.",
+                    "color": "#36a64f",
+                    "ts": time.time()
+                }
+            ]
+        }
+
+        field_array = []
+        for key in fields:
+            if isinstance(fields[key], basestring):
+                outval = fields[key]
+            else:
+                outval = str(fields[key])
+            isshort = len(outval) < 20
+            field_array.append({ "title": key, "value": outval, "short": isshort })
+
+        json_string['attachments'][0]['fields'] = field_array
+        payload = json.dumps(json_string)
+        response = requests.post(self.default_url, data=payload, headers=self.headers)
+        return response
+
     def post(self, text, channel=None, url=None):
         """
         Generic method to send a message to slack. 
@@ -40,5 +68,3 @@ class jarjar():
         
     def set_channel(self, channel):
         self.default_channel = channel
-
-
