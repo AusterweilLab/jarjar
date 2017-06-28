@@ -28,7 +28,7 @@ Then, add the `jarjar` _script_ [to your path](https://stackoverflow.com/questio
 jarjar -e
 
 # echo a message to the #general channel
-jarjar -e -u #general -m "Hi, everyone!!"
+jarjar -e -u "#general" -m "Hi, everyone!!"
 
 # Send yourself a notification when a script is completed
 jarjar -u @username -m "Your job is finished!" python my-script.py
