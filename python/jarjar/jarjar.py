@@ -15,11 +15,21 @@ class jarjar():
         """
         return self.post(text, **kwargs)
 
-    def attach(self, fields):
+    def attach(self, fields, channel=None, url=None):
         import time
-
+        
+    	# make sure channel and URL are _somewhere_
+    	if [self.default_channel, channel] == [None, None]:
+    		raise Exception('No channel provided!')
+    	if [self.default_url, url] == [None, None]:
+    		raise Exception('No webhook url provided!')
+       
+    	# use defaults if not overridden
+    	if channel is None: channel = self.default_channel
+    	if url is None: url = self.default_url
+       
         json_string = {
-            "channel": self.default_channel,
+            "channel": channel,
             "attachments": [
                 {
                     "fallback": "Your table is ready.",
@@ -40,7 +50,7 @@ class jarjar():
 
         json_string['attachments'][0]['fields'] = field_array
         payload = json.dumps(json_string)
-        response = requests.post(self.default_url, data=payload, headers=self.headers)
+        response = requests.post(url, data=payload, headers=self.headers)
         return response
 
     def post(self, text, channel=None, url=None):
