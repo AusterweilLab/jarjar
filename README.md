@@ -14,7 +14,7 @@ Here are some things _we_ use it for:
 
 We have designed two interfaces into jarjar: a shell command and a Python Module.
 
-#The Shell Command
+# The Shell Command
 
 The [`sh/`](sh/) directory contains a shell command `jarjar` and a configuration file `.jarjar`.
 
