@@ -33,7 +33,7 @@ Then, make sure the `jarjar` _script_ is in your path. After that, you can use i
 ./jarjar -u "@username" -m "Your job is finished!" python my-script.py
 
 # send a message to the non-default slack team
-./jarjar -e "@username" -m "Hi!" -w "their-webhook-url"
+./jarjar -e -u "@username" -m "Hi!" -w "their-webhook-url"
 ```
 
 ## Modifiers
