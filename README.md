@@ -41,7 +41,7 @@ jarjar -e -u @username -m "Hi!" -w "their-webhook-url"
 
 | Modifier | Description | 
 |   ---    |     ---     |
-|   `-e`   | Echo the message. If this flag is not included, jarjar wait until a provided process is completed to send the message. By default (without the `-e` flag), jarjar launches a screen with your script (which terminates when your script ends). You can always resume a screen launched by jarjar by finding the appropriate PID: `screen -ls` and `screen -r PID`. |
+|   `-e`   | Echo the message. If this flag is not included, jarjar waits until a provided process is completed to send the message. By default (without the `-e` flag), jarjar launches a screen with your script (which terminates when your script ends). You can always resume a screen launched by jarjar by finding the appropriate PID: `screen -ls` and `screen -r PID`. |
 |   `-r`   | Attaches screen created by jarjar (when `-e` is not used) |
 |   `-m`   | Message to be sent |
 |   `-u`   | Username (or channel). Usernames must begin with `@`, channels with `#`. |
@@ -49,11 +49,12 @@ jarjar -e -u @username -m "Hi!" -w "their-webhook-url"
 
 # The Python Module
 
-This module implements jarjar's functionality more fluidly within Python scripts. Importing the jarjar module provides a simple class, which is initialized by a default webhook and channel (but can be overridden), and sends messages like the shell command
+This module implements jarjar's functionality more fluidly within Python scripts. Importing the jarjar module provides a simple class, which is initialized by a default webhook and channel (which can be overridden), and sends messages like the shell command.
 
-Installation is simple: make sure the [`python/jarjar`](python/) folder is on your current path (e.g., copy it to your working directory, or your modules directory). 
+Installation is simple:
 
-Make sure you've installed [`python-requests`](http://docs.python-requests.org/en/master/).
+1. Make sure the [`python/jarjar`](python/) folder is on your current path (e.g., copy it to your working directory, or your modules directory). 
+2. Make sure you've installed [`python-requests`](http://docs.python-requests.org/en/master/).
 
 Then, you're good to go! You can use it as follows:
 
@@ -63,21 +64,46 @@ from jarjar import jarjar
 # initialize with defaults
 jj = jarjar(channel = '#channel', url = 'slack-webhook-url') 
 
-# Basic usage
-jj.post('Hi!') 
-jj('Hi!') 
+# send a text message
+jj.text('Hi!') 
+
+# send an attachment
+jj.attach(dict(status='it\'s all good')) 
+
+# send both
+jj.post(text='Hi', attach=dict(status='it\'s all good'))
 
 # override defaults
-jj.post('Hi!', channel = '@jeffzemla')
-jj('Hi!', channel = '@nolan', url = 'another-webhook')
+jj.attach(dict(status='it\'s all good'), channel = '@jeffzemla')
+jj.text('Hi!', channel = '@nolan', url = 'another-webhook')
 
-# Initialization is not picky
+# initialization is not picky
 jj = jarjar()
-jj.post('Hi', channel = '#channel', url = 'slack-webhook-url') 
+jj.text('Hi', channel = '#channel', url = 'slack-webhook-url') 
 
 jj = jarjar(url = 'slack-webhook-url')
-jj('Hi', channel = '#channel') 
+jj.attach(dict(status='it\'s all good'), channel = '#channel') 
 ```
+
+## Methods
+
+### text
+
+> `jj.text(text, **kwargs)`
+
+Send a text message, specified by a string, `text`. User may optionally supply the channel and webhook url in the `kwargs`.
+
+### attach
+
+> `jj.attach(attach, **kwargs)`
+
+Send attachments, specified by values in a dict, `attach`. User may optionally supply the channel and webhook url in the `kwargs`.
+
+### post
+
+> `jj.post(text=None, attach=None, channel=None, url=None)`
+
+The generic post method. `jj.text(...)` and `jj.attach(...)` are simply convenience functions wrapped around this method. User may supply text and/or attachments, and may override the default channel and webhook url.
 
 
 # How to configure a Slack Webhook
