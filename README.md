@@ -1,4 +1,4 @@
-# jarjar slack notifier
+# Jarjar slack notifier
 
 Jarjar is a collection of scripts that lets you programatically send notifications to your Slack team. 
 
@@ -45,7 +45,7 @@ Then, make sure the `jarjar` _script_ is in your path. After that, you can use i
 |   `-u`   | Username (or channel). Usernames must begin with `@`, channels with `#`. |
 |   `-w`   | Webhook for the Slack team. |
 
-# The Python Module:
+# The Python Module
 
 This module is designed to be included at the end of a Python script, and has similar functionality as the shell command. Importing the jarjar module provides a simple class, which is initialized by a Slack webhook. The `post` method allows you to send a message to a specified channel.
 
@@ -63,7 +63,7 @@ jj.post("Hi!", "#channel") # send a message to a channel
 
 You'll need to configure [Incoming Webhooks](https://api.slack.com/incoming-webhooks) for your Slack team. You need to specify a default channel (which jarjar overrides), and Slack will give you a webhook url. That's it! 
 
-When you're setting things up, you can also specify a custom name and custom icon. We named our webhook robot `jar-jar`, and we used [this icon](http://i.imgur.com/hTHrg6i.png | width=50), so messages look like this:
+When you're setting things up, you can also specify a custom name and custom icon. We named our webhook robot `jar-jar`, and we used [this icon](http://i.imgur.com/hTHrg6i.png), so messages look like this:
 
 ![](http://i.imgur.com/g9RG16j.png)
 
