@@ -41,7 +41,7 @@ jarjar -e -u @username -m "Hi!" -w "their-webhook-url"
 | Modifier | Description | 
 |   ---    |     ---     |
 |   `-e`   | Echo the message. If this flag is not included, jarjar wait until a provided process is completed to send the message. By default (without the `-e` flag), jarjar launches a screen with your script (which terminates when your script ends). You can always resume a screen launched by jarjar by finding the appropriate PID: `screen -ls` and `screen -r PID`. |
-|   `-r`   | Attaches screen created by jarjar (when `-e` is not used |
+|   `-r`   | Attaches screen created by jarjar (when `-e` is not used) |
 |   `-m`   | Message to be sent |
 |   `-u`   | Username (or channel). Usernames must begin with `@`, channels with `#`. |
 |   `-w`   | Webhook for the Slack team. |
