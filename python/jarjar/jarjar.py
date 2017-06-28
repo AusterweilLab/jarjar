@@ -7,7 +7,19 @@ class jarjar():
         self.default_url = url
         self.headers ={'Content-Type': 'application/json'}
 
+    def __call__(self, text, **kwargs):
+        """
+        Allow functional-style usage, like so:
+        jj = jarjar()
+        jj('Hi', channel = '@nolan', url = url)
+        """
+        return self.post(text, **kwargs)
+
     def post(self, text, channel=None, url=None):
+        """
+        Generic method to send a message to slack. 
+        The default channel and url may be overridden
+        """
 
     	# make sure channel and URL are _somewhere_
     	if [self.default_channel, channel] == [None, None]:
@@ -23,10 +35,10 @@ class jarjar():
         response = requests.post(url, data=payload, headers=self.headers)
         return response
 
-    def __call__(self, text, **kwargs):
-    	"""
-		Allow functional-style usage, like so:
-		jj = jarjar()
-		jj('Hi', channel = '@nolan', url = url)
-    	"""
-    	return self.post(text, **kwargs)
+    def set_url(self, url):
+        self.default_url = url
+        
+    def set_channel(self, channel):
+        self.default_channel = channel
+
+
