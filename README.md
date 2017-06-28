@@ -1,6 +1,6 @@
 # Jarjar slack notifier
 
-Jarjar is a collection of scripts that lets you programatically send notifications to your Slack team. 
+Jarjar is a collection of scripts that lets you programmatically send notifications to your Slack team. 
 
 # What can jarjar do for me?
 
