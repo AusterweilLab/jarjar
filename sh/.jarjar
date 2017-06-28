@@ -1,4 +1,4 @@
 # uncomment the lines that you would like to configure
-#channel= "@my_username" # or "#general" 
+#channel="@my_username" # or "#general" 
 #message="Hi! I am jarjar."
 #webhook="your-webhook-here"

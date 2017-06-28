@@ -24,16 +24,16 @@ Then, make sure the `jarjar` _script_ is in your path. After that, you can use i
 
 ```sh
 # echo the default message to the default channel
-./jarjar -e
+jarjar -e
 
 # echo a message to the #general channel
-./jarjar -e -u "#general" -m "Hi, everyone!!"
+jarjar -e -u #general -m "Hi, everyone!!"
 
 # Send yourself a notification when a script is completed
-./jarjar -u "@username" -m "Your job is finished!" python my-script.py
+jarjar -u @username -m "Your job is finished!" python my-script.py
 
 # send a message to the non-default slack team
-./jarjar -e -u "@username" -m "Hi!" -w "their-webhook-url"
+jarjar -e -u @username -m "Hi!" -w "their-webhook-url"
 ```
 
 ## Modifiers
@@ -53,9 +53,8 @@ Installation is simple: make sure the [`python/jarjar`](python/jarjar/) folder i
 
 ```python
 from jarjar import jarjar
-jj = jarjar("slack-webhook-url") # initialize with your webhook
-jj.post("Hi!", "@username") # send a message to a user
-jj.post("Hi!", "#channel") # send a message to a channel
+jj = jarjar("#channel", "slack-webhook-url") # initialize with your webhook and #channel (or @username)
+jj.post("Hi!")                               # send a message to #channel
 ```
 
 
