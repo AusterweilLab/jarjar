@@ -32,6 +32,7 @@ jarjar -e -u "#general" -m "Hi, everyone!!"
 
 # Send yourself a notification when a script is completed
 jarjar -u @username -m "Your job is finished!" python my-script.py
+jarjar ./my-script.sh
 
 # send a message to the non-default slack team
 jarjar -e -u @username -m "Hi!" -w "their-webhook-url"
