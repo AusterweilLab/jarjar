@@ -28,10 +28,11 @@ Then, add the `jarjar` _script_ [to your path](https://stackoverflow.com/questio
 jarjar -e
 
 # echo a message to the #general channel
-jarjar -e -u #general -m "Hi, everyone!!"
+jarjar -e -u "#general" -m "Hi, everyone!!"
 
 # Send yourself a notification when a script is completed
 jarjar -u @username -m "Your job is finished!" python my-script.py
+jarjar ./my-script.sh
 
 # send a message to the non-default slack team
 jarjar -e -u @username -m "Hi!" -w "their-webhook-url"
@@ -66,6 +67,9 @@ jj = jarjar(channel = '#channel', url = 'slack-webhook-url')
 
 # send a text message
 jj.text('Hi!') 
+
+# send a message to multiple channels or users
+jj.text('Hi!',channel=["@jeffzemla","#channel"])
 
 # send an attachment
 jj.attach(dict(status='it\'s all good')) 
