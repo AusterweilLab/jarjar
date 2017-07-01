@@ -76,6 +76,13 @@ class jarjar():
         # get channel and URL
     	channel, url = self._args_handler(channel, url)
 
+        # recursively post to all channels in array of channels
+        if isinstance(channel, list):
+            status=[]
+            for c in channel:
+                status.append(self.post(text=text, attach=attach, channel=c, url=url))
+            return status
+
         # construct a payload
         payload = dict(channel = channel)
 
