@@ -1,0 +1,9 @@
+setup.cfg
+setup.py
+jarjar/__init__.py
+jarjar/jarjar.py
+jarjar.egg-info/PKG-INFO
+jarjar.egg-info/SOURCES.txt
+jarjar.egg-info/dependency_links.txt
+jarjar.egg-info/requires.txt
+jarjar.egg-info/top_level.txt
