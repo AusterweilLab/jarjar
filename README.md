@@ -19,7 +19,13 @@ We have designed two interfaces into jarjar: a shell command and a Python Module
 
 The [`sh/`](sh/) directory contains a shell command `jarjar` and a configuration file `.jarjar`.
 
-Fill the configuration file out with useful defaults. Critically, you'll want to paste in your Slack webhook so that jarjar knows where to send the message. Then put the configuration file in your home directory (`~/`), that's where jarjar will look for it. Don't worry, you can override those defaults later.
+Fill the configuration file out with useful defaults. Critically, you'll want to paste in your Slack webhook so that jarjar knows where to send the message. Then put the configuration file in your home directory (`~/`), that's where jarjar will look for it. Don't worry, you can override those defaults later. Here's a sample `.jarjar`:
+
+```sh
+channel="@my_username" # or "#general" 
+message="Hi! Meesa Jar Jar Binks."
+webhook="your-webhook-here"
+```
 
 Then, add the `jarjar` _script_ [to your path](https://stackoverflow.com/questions/20054538/add-a-bash-script-to-path). After that, you can use it like so:
 
@@ -50,26 +56,33 @@ jarjar -e -u @username -m "Hi!" -w "their-webhook-url"
 
 # The Python Module
 
-This module implements jarjar's functionality more fluidly within Python scripts. Importing the jarjar module provides a simple class, which is initialized by a default webhook and channel (which can be overridden), and sends messages like the shell command.
+This module implements jarjar's functionality more fluidly within Python scripts. Importing the jarjar module provides a simple class, which can be used to send messages like the shell command.
 
 Installation is simple:
 
 1. Make sure the [`python/jarjar`](python/) folder is on your current path (e.g., copy it to your working directory, or your modules directory). 
 2. Make sure you've installed [`python-requests`](http://docs.python-requests.org/en/master/).
+3. The module will read `~/.jarjar` for the default channel and webhook, which can be overridden.
 
 Then, you're good to go! You can use it as follows:
 
 ```python
 from jarjar import jarjar
 
-# initialize with defaults
-jj = jarjar(channel = '#channel', url = 'slack-webhook-url') 
+# initialize with defaults from .jarjar
+jj = jarjar()
+
+# initialize with custom defaults
+jj = jarjar(channel='#channel', webhook='slack-webhook-url') 
+
+# initialization is not picky -- provide one or both arguments
+jj = jarjar(webhook = 'slack-webhook-url')
 
 # send a text message
 jj.text('Hi!') 
 
 # send a message to multiple channels or users
-jj.text('Hi!',channel=["@jeffzemla","#channel"])
+jj.text('Hi!', channel=["@jeffzemla","#channel"])
 
 # send an attachment
 jj.attach(dict(status='it\'s all good')) 
@@ -77,35 +90,28 @@ jj.attach(dict(status='it\'s all good'))
 # send both
 jj.post(text='Hi', attach=dict(status='it\'s all good'))
 
-# override defaults
+# override defaults after initializing
 jj.attach(dict(status='it\'s all good'), channel = '@jeffzemla')
-jj.text('Hi!', channel = '@nolan', url = 'another-webhook')
-
-# initialization is not picky
-jj = jarjar()
-jj.text('Hi', channel = '#channel', url = 'slack-webhook-url') 
-
-jj = jarjar(url = 'slack-webhook-url')
-jj.attach(dict(status='it\'s all good'), channel = '#channel') 
+jj.text('Hi!', channel = '@nolan', webhook = 'another-webhook')
 ```
 
 ## Methods
 
-### text
+### `text`
 
 > `jj.text(text, **kwargs)`
 
-Send a text message, specified by a string, `text`. User may optionally supply the channel and webhook url in the `kwargs`.
+Send a text message, specified by a string, `text`. User may optionally supply the channel and webhook in the `kwargs`.
 
-### attach
+### `attach`
 
 > `jj.attach(attach, **kwargs)`
 
-Send attachments, specified by values in a dict, `attach`. User may optionally supply the channel and webhook url in the `kwargs`.
+Send attachments, specified by values in a dict, `attach`. User may optionally supply the channel and webhook in the `kwargs`.
 
-### post
+### `post`
 
-> `jj.post(text=None, attach=None, channel=None, url=None)`
+> `jj.post(text=None, attach=None, channel=None, webhook=None)`
 
 The generic post method. `jj.text(...)` and `jj.attach(...)` are simply convenience functions wrapped around this method. User may supply text and/or attachments, and may override the default channel and webhook url.
 
