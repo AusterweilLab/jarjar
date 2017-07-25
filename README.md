@@ -17,7 +17,7 @@ We have designed two interfaces into jarjar: a shell command and a Python Module
 
 # The Shell Command
 
-The [`sh/`](sh/) directory contains a shell command `jarjar` and a configuration file `.jarjar`.
+The `sh/` directory contains a shell command `jarjar` and a configuration file `.jarjar`.
 
 Fill the configuration file out with useful defaults. Critically, you'll want to paste in your Slack webhook so that jarjar knows where to send the message. Then put the configuration file in your home directory (`~/`), that's where jarjar will look for it. Don't worry, you can override those defaults later. Here's a sample `.jarjar`:
 
@@ -60,9 +60,15 @@ This module implements jarjar's functionality more fluidly within Python scripts
 
 Installation is simple:
 
-1. Make sure the [`python/jarjar`](python/) folder is on your current path (e.g., copy it to your working directory, or your modules directory). 
-2. Make sure you've installed [`python-requests`](http://docs.python-requests.org/en/master/).
-3. The module will read `~/.jarjar` for the default channel and webhook, which can be overridden.
+1. `pip install jarjar`
+2. _Optional_: create a `~/.jarjar` file with some defaults (this is shared with the shell command).
+
+```sh
+channel="@my_username" # or "#general" 
+message="Hi! Meesa Jar Jar Binks."
+webhook="your-webhook-here"
+```
+
 
 Then, you're good to go! You can use it as follows:
 
