@@ -6,7 +6,7 @@ else:
 	version = _version_info.major
 
 # different importing for python 2 and 3
-if _version_info.major == 2:
+if version == 2:
 	from jarjar import jarjar
 else:
 	from jarjar.jarjar import jarjar
