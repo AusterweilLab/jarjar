@@ -3,3 +3,6 @@ mywebhook.txt
 .DS_Store
 *.pyc
 test.py
+python/dist
+python/build
+pythjon/jarjar.egg-info
