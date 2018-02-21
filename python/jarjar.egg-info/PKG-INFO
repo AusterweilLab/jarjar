@@ -1,0 +1,17 @@
+Metadata-Version: 1.1
+Name: jarjar
+Version: 2.0.1
+Summary: Programatically send messages to your slack team
+Home-page: https://github.com/AusterweilLab/jarjar
+Author: The Austerweil Lab at UW-Madison
+Author-email: austerweil.lab@gmail.com
+License: MIT
+Description: UNKNOWN
+Keywords: slack,messaging
+Platform: UNKNOWN
+Classifier: Programming Language :: Python :: 2
+Classifier: Programming Language :: Python :: 2.7
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.3
+Classifier: Programming Language :: Python :: 3.4
+Classifier: Programming Language :: Python :: 3.5
