@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name='jarjar',
-      version='2.0.1',
+      version='2.0.2',
       description='Programatically send messages to your slack team',
       url='https://github.com/AusterweilLab/jarjar',
       author='The Austerweil Lab at UW-Madison',

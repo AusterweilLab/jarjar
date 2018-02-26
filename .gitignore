@@ -5,4 +5,5 @@ mywebhook.txt
 test.py
 python/dist
 python/build
-pythjon/jarjar.egg-info
+python/jarjar.egg-info
+python/update-pip.sh
