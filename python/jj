@@ -1,0 +1,48 @@
+#! /usr/bin/env python
+
+from jarjar import jarjar
+import argparse
+
+PARSER = argparse.ArgumentParser()
+
+'''
+X Send a message, no muss no fuss: jarjar {message}
+Spin up a screen and do a task, then send message: jarjar {message} --arg {task}
+Spin up a screen and do a task, then send exit status: jarjar --arg {task}
+'''
+
+PARSER.add_argument(
+	'message',
+	help="message to send",
+	nargs='+',
+	default=[]
+)
+
+PARSER.add_argument(
+	"-w",
+	"--webhook",
+	help="Set webhook target.",
+	default=None
+)
+
+PARSER.add_argument(
+	"-u", '-c',
+	"--channel",
+	help="Set user/channel target.",
+	default=None
+)
+
+
+ARGS = PARSER.parse_args()
+MESSAGE = ' '.join(ARGS.message)
+WEBHOOK = ARGS.webhook
+CHANNEL = ARGS.channel
+
+
+def main():
+	jj = jarjar(webhook=WEBHOOK, channel=CHANNEL)
+	jj.text(MESSAGE)
+
+
+if __name__ == '__main__':
+	main()
