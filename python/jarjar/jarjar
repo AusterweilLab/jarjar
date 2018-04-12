@@ -112,7 +112,7 @@ def _make_jarjar_shell(m=None, c=None, w=None):
 
 	# exit status default message if needed
 	if not m:
-		m = '\'Your task has completed with exit status $?.\''
+		m = '\'Your task has completed.\''
 		cmd += ['--message', m]
 	else:
 		cmd += make_flag('--message', m)
