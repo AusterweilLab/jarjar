@@ -1,0 +1,9 @@
+
+Environment wizard
+Allow custom images/names/etc in .jarjar
+Figure out how to place this into a bin
+Test python 2/3 support
+Think of list of edge cases and test them
+Documentation needs a major revamp.
+Remove the original .sh command
+Auto detect where jarjar executable is

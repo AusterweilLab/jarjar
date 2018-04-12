@@ -9,16 +9,15 @@ from _screenutils.errors import ScreenNotFoundError
 
 try:
 	from commands import getoutput
-except:
+except Exception:
 	from subprocess import getoutput
-from threading import Thread
 from os import system
 from os.path import getsize
 from time import sleep
 
 
 def tailf(file_):
-	"""Each value is content added to the log file since last value return"""
+	"""Each value is content added to the log file since last value return."""
 	last_size = getsize(file_)
 	while True:
 		cur_size = getsize(file_)
@@ -34,50 +33,47 @@ def tailf(file_):
 
 
 def list_screens():
-	"""List all the existing screens and build a Screen instance for each
-	"""
+	"""List all the existing screens and build a Screen instance for each."""
 	list_cmd = "screen -ls"
 	return [
-				Screen(".".join(l.split(".")[1:]).split("\t")[0])
-				for l in getoutput(list_cmd).split('\n')
-				if "\t" in l and ".".join(l.split(".")[1:]).split("\t")[0]
-			]
+		Screen(".".join(l.split(".")[1:]).split("\t")[0])
+		for l in getoutput(list_cmd).split('\n')
+		if "\t" in l and ".".join(l.split(".")[1:]).split("\t")[0]
+	]
 
 
 class Screen(object):
-	"""Represents a gnu-screen object::
+	"""Represents a gnu-screen object.
 
-		>>> s=Screen("screenName", initialize=True)
-		>>> s.name
-		'screenName'
-		>>> s.exists
-		True
-		>>> s.state
-		>>> s.send_commands("man -k keyboard")
-		>>> s.kill()
-		>>> s.exists
-		False
+	>>> s=Screen("screenName", initialize=True)
+	>>> s.name
+	'screenName'
+	>>> s.exists
+	True
+	>>> s.state
+	>>> s.send_commands("man -k keyboard")
+	>>> s.kill()
+	>>> s.exists
+	False
 	"""
 
 	def __init__(self, name, initialize=False):
 		self.name = name
 		self._id = None
 		self._status = None
-		self.logs = None
-		self._logfilename = None
 		if initialize:
 			self.initialize()
 
 	@property
 	def id(self):
-		"""return the identifier of the screen as string"""
+		"""Return the identifier of the screen as string."""
 		if not self._id:
 			self._set_screen_infos()
 		return self._id
 
 	@property
 	def status(self):
-		"""return the status of the screen as string"""
+		"""Return the status of the screen as string."""
 		self._set_screen_infos()
 		return self._status
 
@@ -87,25 +83,14 @@ class Screen(object):
 		# Parse the screen -ls call, to find if the screen exists or not.
 		#  "	28062.G.Terminal	(Detached)"
 		lines = getoutput("screen -ls").split('\n')
-		return self.name in [".".join(l.split(".")[1:]).split("\t")[0]
-							 for l in lines if self.name in l]
-
-	def enable_logs(self, filename=None):
-		if filename is None:
-			filename = self.name
-		self._screen_commands("logfile " + filename, "log on")
-		self._logfilename = filename
-		open(filename, 'w+')
-		self.logs = tailf(filename)
-
-	def disable_logs(self, remove_logfile=False):
-		self._screen_commands("log off")
-		if remove_logfile:
-			system('rm ' + self._logfilename)
-		self.logs = None
+		return self.name in [
+			".".join(l.split(".")[1:]).split("\t")[0]
+			for l in lines
+			if self.name in l
+		]
 
 	def initialize(self):
-		"""initialize a screen, if does not exists yet"""
+		"""Initialize a screen, if does not exists yet."""
 		if not self.exists:
 			self._id = None
 			# Detach the screen once attached, on a new tread.
@@ -117,61 +102,58 @@ class Screen(object):
 			# system('screen -s sh -UR -S ' + self.name)
 
 			# CUSTOM
-			system('screen -d -m -U -s sh -S ' + self.name)
+			system('screen -d -m -S ' + self.name)
 
 	def interrupt(self):
-		"""Insert CTRL+C in the screen session"""
+		"""Insert CTRL+C in the screen session."""
 		self._screen_commands("eval \"stuff \\003\"")
 
 	def kill(self):
-		"""Kill the screen applications then close the screen"""
+		"""Kill the screen applications then close the screen."""
 		self._screen_commands('quit')
 
 	def detach(self):
-		"""detach the screen"""
+		"""Detach the screen."""
 		self._check_exists()
 		system("screen -d " + self.id)
 
 	def send_commands(self, *commands):
-		"""send commands to the active gnu-screen"""
+		"""Send commands to the active gnu-screen."""
 		self._check_exists()
 		for command in commands:
-			# self._screen_commands(
-			# 	'stuff "' + command + '" ',
-			# 	'eval "stuff \\015"'
-			# )
-			self._screen_commands(command)
+			self._screen_commands(
+				'stuff \"{0}\"'.format(command),
+				'eval "stuff \\015"'
+			)
 
 	def add_user_access(self, unix_user_name):
-		"""allow to share your session with an other unix user"""
+		"""Allow to share your session with an other unix user."""
 		self._screen_commands('multiuser on', 'acladd ' + unix_user_name)
 
 	def _screen_commands(self, *commands):
-		"""allow to insert generic screen specific commands
-		a glossary of the existing screen command in `man screen`"""
+		"""Allow to insert generic screen specific commands."""
 		self._check_exists()
 		for command in commands:
-			cmd = 'screen -x ' + self.id + ' -X ' + command
-			# 'screen -x ' + self.id + ' -X ' + command
-			print cmd
+			cmd = 'screen -x {0} -p 0 -X {1}'.format(self.name, command)
+			# print cmd
 			system(cmd)
 			sleep(0.02)
 
 	def _check_exists(self, message="Error code: 404."):
-		"""check whereas the screen exist. if not, raise an exception"""
+		"""Check whereas the screen exist. if not, raise an exception."""
 		if not self.exists:
 			raise ScreenNotFoundError(message, self.name)
 
 	def _set_screen_infos(self):
-		"""set the screen information related parameters"""
+		"""Set the screen information related parameters."""
 		if self.exists:
 			line = ""
 			for l in getoutput("screen -ls").split("\n"):
 				if (
-						l.startswith('\t') and
-						self.name in l and
-						self.name == ".".join(
-							l.split('\t')[1].split('.')[1:]) in l):
+					l.startswith('\t') and
+					self.name in l and
+					self.name == ".".join(l.split('\t')[1].split('.')[1:]) in l
+				):
 					line = l
 			if not line:
 				raise ScreenNotFoundError("While getting info.", self.name)
