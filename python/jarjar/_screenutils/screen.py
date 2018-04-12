@@ -118,7 +118,7 @@ class Screen(object):
 		self._check_exists()
 		for command in commands:
 			cmd = 'screen -x {0} -p 0 -X {1}'.format(self.name, command)
-			print cmd
+			# print(cmd)
 			system(cmd)
 			sleep(0.02)
 

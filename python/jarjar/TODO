@@ -6,5 +6,4 @@ Test python 2/3 support
 Think of list of edge cases and test them
 Documentation needs a major revamp.
 Remove the original .sh command
-Auto detect where jarjar executable is
 Figure out how to add an exit status to the default message

@@ -72,9 +72,12 @@ PARSER.add_argument(
 )
 
 # get arguments from parser
-ARGS = PARSER.parse_args()
+ARGS, UNKNOWN = PARSER.parse_known_args()
 
 # warns / checks
+if UNKNOWN:
+	print('Warn: ignoring unknown arguments `{}`.'.format(' '.join(UNKNOWN)))
+
 if not ARGS.message and not ARGS.program:
 	PARSER.print_help(sys.stderr)
 	print('\nProvide a message or some task too complete!')
