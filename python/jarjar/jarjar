@@ -12,7 +12,6 @@ from _screenutils import Screen
 import os
 import sys
 import argparse
-import re
 
 PARSER = argparse.ArgumentParser()
 
@@ -42,7 +41,7 @@ PARSER.add_argument(
 PARSER.add_argument(
 	"-c", "-u",
 	"--channel",
-        "--user",
+		"--user",
 	help="Set user/channel target.",
 	default=None
 )
@@ -57,7 +56,7 @@ PARSER.add_argument(
 
 PARSER.add_argument(
 	"-S",
-        "--screen_name",
+		"--screen_name",
 	dest='screen_name',
 	help="Set the name of the screen. Default to first 10 characters of the task",
 	default=None,
@@ -116,7 +115,7 @@ def _make_jarjar_shell(m=None, c=None, w=None):
 			return [k, '\'{}\''.format(v)]
 
 	# start out the command
-	cmd = ['jarjar']
+	cmd = ['/usr/bin/env python {}'.format(os.path.realpath(__file__))]
 
 	# exit status default message if needed
 	if not m:
