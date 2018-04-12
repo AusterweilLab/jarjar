@@ -1,5 +1,11 @@
 #! /usr/bin/env python
 
+# TODO:
+# silently suppress unused args
+# return exit status from program
+# specify screen name doesn't work
+# use default jarjar message when program but not message is specified
+
 from jarjar import jarjar
 from _screenutils import Screen
 
@@ -34,14 +40,15 @@ PARSER.add_argument(
 )
 
 PARSER.add_argument(
-	"-u", '-c',
+	"-c", "-u",
 	"--channel",
+        "--user",
 	help="Set user/channel target.",
 	default=None
 )
 
 PARSER.add_argument(
-	"-a", '-r',
+	"-a", "-r",
 	"--attach",
 	help="Attach to screen.",
 	default=False,
@@ -50,6 +57,7 @@ PARSER.add_argument(
 
 PARSER.add_argument(
 	"-S",
+        "--screen_name",
 	dest='screen_name',
 	help="Set the name of the screen. Default to first 10 characters of the task",
 	default=None,
@@ -59,9 +67,9 @@ PARSER.add_argument(
 PARSER.add_argument(
 	"-e",
 	dest='echo',
-	action='store_true',
 	help=argparse.SUPPRESS,
-	default=False
+	default=False,
+	action='store_true'
 )
 
 # get arguments from parser
@@ -124,7 +132,7 @@ def _make_jarjar_shell(m=None, c=None, w=None):
 
 def main():
 
-	# pare args
+	# parse args
 	MESSAGE = ' '.join(ARGS.message)
 	WEBHOOK = ARGS.webhook
 	CHANNEL = ARGS.channel
@@ -133,8 +141,7 @@ def main():
 	if ARGS.screen_name is None:
 		if PROGRAM:
 			SCREEN_NAME = '_'.join(ARGS.program).replace(' ', '_')
-			SCREEN_NAME = re.sub(r'\W+', '', SCREEN_NAME)
-			SCREEN_NAME = SCREEN_NAME[:min(len(SCREEN_NAME), 10)]
+			SCREEN_NAME = SCREEN_NAME[:10]
 		else:
 			SCREEN_NAME = None
 	else:
