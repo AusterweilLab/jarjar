@@ -5,7 +5,7 @@
 - Default message support because jeff uses it.
 - Documentation needs a major revamp.
 
-# WOULD NE NICE
+# WOULD BE NICE
 
 - Figure out how to add an exit status to the default message
 
