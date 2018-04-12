@@ -59,8 +59,7 @@ PARSER.add_argument(
 		"--screen_name",
 	dest='screen_name',
 	help="Set the name of the screen. Default to first 10 characters of the task",
-	default=None,
-	nargs=1
+	default=None
 )
 
 PARSER.add_argument(
