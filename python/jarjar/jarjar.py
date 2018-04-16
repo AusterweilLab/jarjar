@@ -6,19 +6,18 @@ import imp
 
 class jarjar():
 
-    def __init__(self, channel=None, webhook=None):
+    def __init__(self, channel=None, webhook=None, message=None):
 
         # read config file, set defaults
         self._read_config()
-        self._set_defaults(channel=channel, webhook=webhook)
+        self._set_defaults(channel=channel, webhook=webhook, message=message)
 
         # headers for post request
         self.headers = {'Content-Type': 'application/json'}
-        
 
-    def _set_defaults(self, channel=None, webhook=None):
+    def _set_defaults(self, channel=None, webhook=None, message=None):
         """
-        Set the default channel and webhook
+        Set the default channel and webhook and message
         This could be a little drier....
         """
 
@@ -34,6 +33,11 @@ class jarjar():
         else:
             self.default_webhook = webhook
 
+        # same thing for message
+        if message is None:
+            self.default_message = self.cfg_message
+        else:
+            self.default_message = message
 
     def _read_config(self):
         """
@@ -51,7 +55,7 @@ class jarjar():
         cfg = imp.load_source('_jarjar', filename)
 
         # assign variables
-        for field in ['channel','webhook']:
+        for field in ['channel','webhook','message']:
 
             # read from config, or set to none
             if hasattr(cfg, field): 
@@ -63,7 +67,7 @@ class jarjar():
             setattr(self, 'cfg_%s' % field, data)
 
 
-    def _args_handler(self, channel, webhook):
+    def _args_handler(self, channel, webhook, message):
         """
         Decide to use the default or provided arguments
         """
@@ -74,12 +78,13 @@ class jarjar():
 
         if [self.default_webhook, webhook] == [None, None]:
             raise Exception('No webhook url provided!')
-       
+
         # use defaults if not overridden
         if channel is None: channel = self.default_channel
         if webhook is None: webhook = self.default_webhook
+        if message is None: message = self.default_message
 
-        return channel, webhook
+        return channel, webhook, message
 
     @staticmethod
     def _attachment_formatter(attach):
@@ -113,38 +118,38 @@ class jarjar():
         """
         return self.post(attach = attach, **kwargs)
 
-    def text(self, text, **kwargs):
+    def text(self, message, **kwargs):
         """
         Send a message, without attachments. This is a wrapper around
         self.post
         """
-        return self.post(text = text, **kwargs)
+        return self.post(message = message, **kwargs)
 
-    def post(self, text=None, attach=None, channel=None, webhook=None):
+    def post(self, message=None, attach=None, channel=None, webhook=None):
         """
         Generic method to send a message to slack. Defaults may be overridden.
         The user may specify text or attachments.
         """
 
-        # return if there is nothing to send
-        if [text, attach] == [None, None]: return None
+        # get channel and webhook and message
+        channel, webhook, message = self._args_handler(channel, webhook, message)
 
-        # get channel and webhook
-        channel, webhook = self._args_handler(channel, webhook)
+        # return if there is nothing to send
+        if [message, attach] == [None, None]: return None
 
         # recursively post to all channels in array of channels
         if isinstance(channel, list):
             status=[]
             for c in channel:
-                status.append(self.post(text=text, attach=attach, channel=c, url=webhook))
+                status.append(self.post(message=message, attach=attach, channel=c, url=webhook))
             return status
 
         # construct a payload
         payload = dict(channel = channel)
-
+        
         # add text and attachments if provided
-        if text is not None:
-            payload['text'] = text
+        if message is not None:
+            payload['text'] = message
 
         if attach is not None:
             payload['attachments']= self._attachment_formatter(attach)
@@ -158,3 +163,6 @@ class jarjar():
         
     def set_channel(self, channel):
         self.default_channel = channel
+
+    def set_message(self, message):
+        self.default_message = message

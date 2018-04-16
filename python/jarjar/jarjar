@@ -15,7 +15,6 @@ import argparse
 
 PARSER = argparse.ArgumentParser()
 
-
 PARSER.add_argument(
 	'program',
 	help="Set task to run in a screen.",
@@ -125,6 +124,8 @@ def _make_jarjar_shell(m=None, c=None, w=None):
 		cmd += ['--message', m]
 	else:
 		cmd += make_flag('--message', m)
+	#if m:
+	#	cmd += make_flag('--message', m)
 
 	cmd += make_flag('--channel', c)
 	cmd += make_flag('--webhook', w)
