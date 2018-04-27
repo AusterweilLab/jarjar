@@ -2,7 +2,6 @@
 
 - Make a test suite and pass it with > Python 2.7, 3.
 - Figure out how to place the shell script into a bin
-- Default message support because jeff uses it.
 - Documentation needs a major revamp.
 
 # WOULD BE NICE
