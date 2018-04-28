@@ -2,6 +2,7 @@ mywebhook.txt
 .*.swp
 .DS_Store
 *.pyc
+*.sublime-project
 test.py
 python/dist
 python/build

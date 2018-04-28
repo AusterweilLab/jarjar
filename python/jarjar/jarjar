@@ -12,61 +12,62 @@ from _screenutils import Screen
 import os
 import sys
 import argparse
+import warnings
 
 PARSER = argparse.ArgumentParser()
 
 PARSER.add_argument(
-	'program',
-	help="Set task to run in a screen.",
-	nargs='*',
-	default=[]
+    'program',
+    help="Set task to run in a screen.",
+    nargs='*',
+    default=[]
 )
 
 PARSER.add_argument(
-	"-m",
-	"--message",
-	help="Message to send.",
-	nargs='*',
-	default=[]
+    "-m",
+    "--message",
+    help="Message to send.",
+    nargs='*',
+    default=[]
 )
 
 PARSER.add_argument(
-	"-w",
-	"--webhook",
-	help="Set webhook target.",
-	default=None
+    "-w",
+    "--webhook",
+    help="Set webhook target.",
+    default=None
 )
 
 PARSER.add_argument(
-	"-c", "-u",
-	"--channel",
-		"--user",
-	help="Set user/channel target.",
-	default=None
+    "-c", "-u",
+    "--channel",
+    "--user",
+    help="Set user/channel target.",
+    default=None
 )
 
 PARSER.add_argument(
-	"-a", "-r",
-	"--attach",
-	help="Attach to screen.",
-	default=False,
-	action='store_true'
+    "-a", "-r",
+    "--attach",
+    help="Attach to screen.",
+    default=False,
+    action='store_true'
 )
 
 PARSER.add_argument(
-	"-S",
-		"--screen_name",
-	dest='screen_name',
-	help="Set the name of the screen. Default to first 10 characters of the task",
-	default=None
+    "-S",
+    "--screen_name",
+    dest='screen_name',
+    help="Set the name of the screen. Default to first 10 chars of the task",
+    default=None
 )
 
 PARSER.add_argument(
-	"-e",
-	dest='echo',
-	help=argparse.SUPPRESS,
-	default=False,
-	action='store_true'
+    "-e",
+    dest='echo',
+    help=argparse.SUPPRESS,
+    default=False,
+    action='store_true'
 )
 
 # get arguments from parser
@@ -74,115 +75,164 @@ ARGS, UNKNOWN = PARSER.parse_known_args()
 
 # warns / checks
 if UNKNOWN:
-	print('Warn: ignoring unknown arguments `{}`.'.format(' '.join(UNKNOWN)))
-
-if not ARGS.message and not ARGS.program:
-	PARSER.print_help(sys.stderr)
-	print('\nProvide a message or some task too complete!')
-	sys.exit(1)
+    warnings.warn(
+        'Ignoring unknown arguments `{}`.'.format(' '.join(UNKNOWN))
+    )
 
 if ARGS.echo:
-	print('Psst-- `-e` is no longer needed!')
+    print('Psst-- `-e` is no longer needed!')
 
 if not ARGS.program:
-	if ARGS.attach:
-		print('Note: You asked to attach but there is no task to run.')
+    if ARGS.attach:
+        warnings.warn('Note: You asked to attach but there is no task to run.')
 
-	if ARGS.screen_name is not None:
-		print('Note: You named a screen but there is no task to run.')
+    if ARGS.screen_name is not None:
+        warnings.warn('Note: You named a screen but there is no task to run.')
 
 
 def _append_to_name(name):
-	"""Append an `__{integer}` to a name or add to it."""
+    """Append an `__{integer}` to a name or add to it."""
 
-	suffix = '__'
-	appended = suffix in name and name.split(suffix)[-1].isdigit()
-	if not appended:
-		return name + suffix + '1'
+    suffix = '__'
+    appended = suffix in name and name.split(suffix)[-1].isdigit()
+    if not appended:
+        return name + suffix + '1'
 
-	parts = name.split(suffix)
-	stem = suffix.join(parts[:-1])
-	return stem + suffix + str(int(parts[-1]) + 1)
+    parts = name.split(suffix)
+    stem = suffix.join(parts[:-1])
+    return stem + suffix + str(int(parts[-1]) + 1)
+
+
+def _fmt_time(seconds):
+    """Convert a seconds integer into a formatted time string."""
+    if seconds < 30:
+        return('{0:d} seconds'.format(seconds))
+    elif seconds < 1800:  # 30 mins
+        return('{0:0.1f} minutes'.format(seconds / 60.0))
+    else:  # hours
+        return('{0:0.1f} hours'.format(seconds / 60.0**2))
 
 
 def _make_jarjar_shell(m=None, c=None, w=None):
-	"""Construct a jarjar shell command."""
+    """Construct a jarjar shell command."""
 
-	def make_flag(k, v):
-		"""Ignore flag if None, otherwise wrap in single quotes."""
-		if v is None:
-			return []
-		else:
-			return [k, '\'{}\''.format(v)]
+    def make_flag(k, v):
+        """Ignore flag if None, otherwise wrap in single quotes."""
+        if v is None:
+            return []
+        else:
+            return [k, '\'{}\''.format(v)]
 
-	# start out the command
-	cmd = ['/usr/bin/env python {}'.format(os.path.realpath(__file__))]
+    # start out the command
+    cmd = ['/usr/bin/env python {}'.format(os.path.realpath(__file__))]
 
-	# exit status default message if needed
-	if not m:
-		m = '\'Your task has completed.\''
-		cmd += ['--message', m]
-	else:
-		cmd += make_flag('--message', m)
-	#if m:
-	#	cmd += make_flag('--message', m)
+    # add message if provided
+    if m:
+        cmd += make_flag('--message', m)
 
-	cmd += make_flag('--channel', c)
-	cmd += make_flag('--webhook', w)
-	return ' '.join(cmd)
+    cmd += make_flag('--channel', c)
+    cmd += make_flag('--webhook', w)
+    return ' '.join(cmd)
+
+
+def _make_screen_name(command):
+    return (
+        '_'.join(command)
+        .replace(' ', '_')
+        .replace(';', '_')
+    )[:10]
 
 
 def main():
 
-	# parse args
-	MESSAGE = ' '.join(ARGS.message)
-	WEBHOOK = ARGS.webhook
-	CHANNEL = ARGS.channel
-	PROGRAM = ' '.join(ARGS.program)
-	ATTACH = ARGS.attach
-	if ARGS.screen_name is None:
-		if PROGRAM:
-			SCREEN_NAME = '_'.join(ARGS.program).replace(' ', '_')
-			SCREEN_NAME = SCREEN_NAME[:10]
-		else:
-			SCREEN_NAME = None
-	else:
-		SCREEN_NAME = ARGS.screen_name
+    # parse args
+    MESSAGE = ' '.join(ARGS.message)
+    WEBHOOK = ARGS.webhook
+    CHANNEL = ARGS.channel
+    PROGRAM = ' '.join(ARGS.program)
+    ATTACH = ARGS.attach
+    if ARGS.screen_name is None:
+        if PROGRAM:
+            SCREEN_NAME = _make_screen_name(ARGS.program)
+        else:
+            SCREEN_NAME = None
+    else:
+        SCREEN_NAME = ARGS.screen_name
 
-	# if there is no program, then we're done here...
-	if not PROGRAM:
-		jarjar(channel=CHANNEL, webhook=WEBHOOK).text(MESSAGE)
-		return
+    # if there is no program, then we're done here...
+    if not PROGRAM:
 
-	# make jarjar shell command
-	NOTIFY = _make_jarjar_shell(m=MESSAGE, w=WEBHOOK, c=CHANNEL)
+        # get env variables
+        UNIX_START = os.environ.get('JJ_UNIX_START')
+        UNIX_END = os.environ.get('JJ_UNIX_END')
+        EXIT = os.environ.get('JARJAR_EXIT')
+        if not MESSAGE:
+            MESSAGE = None
 
-	# make sure screen is unique
-	# --- raise error for manual names.
-	# --- append suffix for auto names.
-	screen = Screen(SCREEN_NAME, initialize=False)
-	if screen.exists:
-		if ARGS.screen_name is not None:
-			raise Exception('There is already a screen by that name!')
+        # if vars are defined and there is no message, use them as the default
+        if None not in (UNIX_START, UNIX_END, EXIT) and not MESSAGE:
+            SECONDS = int(UNIX_END) - int(UNIX_START)
+            MESSAGE = (
+                'Process exited in {0} with status {1}.'
+                .format(_fmt_time(SECONDS), EXIT)
+            )
 
-		while screen.exists:
-			SCREEN_NAME = _append_to_name(SCREEN_NAME)
-			screen = Screen(SCREEN_NAME)
+        # send the notification
+        jarjar(channel=CHANNEL, webhook=WEBHOOK).text(MESSAGE)
+        return
 
-	# notify user of the screen name if not provided.
-	print('Creating screen: `{0}`.'.format(SCREEN_NAME))
+    # make jarjar shell command
+    NOTIFY = _make_jarjar_shell(m=MESSAGE, w=WEBHOOK, c=CHANNEL)
 
-	# spin up the screen and run through the task
-	screen.initialize()
+    # make sure screen is unique
+    # --- raise error for manual names.
+    # --- append suffix for auto names.
+    screen = Screen(SCREEN_NAME, initialize=False)
+    if screen.exists:
+        if ARGS.screen_name is not None:
+            raise Exception('There is already a screen by that name!')
 
-	screen.send_commands(PROGRAM + '; ' + NOTIFY)
+        while screen.exists:
+            SCREEN_NAME = _append_to_name(SCREEN_NAME)
+            screen = Screen(SCREEN_NAME, initialize=False)
 
-	# attach if needed
-	if ATTACH:
-		os.system('screen -r {}'.format(SCREEN_NAME))
+    # notify user of the screen name if not provided.
+    if ARGS.screen_name is None:
+        print('Creating screen: `{0}`.'.format(SCREEN_NAME))
 
-	sys.exit(0)
+    # spin up the screen and run through the task
+    screen.initialize()
+
+    # ------------
+    # Run commands
+
+    # hide from history
+    screen.send_commands('unset HISTFILE')
+
+    # capture start time
+    screen.send_commands('''export JJ_UNIX_START=$(date -u +%s);''')
+
+    # run command
+    screen.send_commands(PROGRAM)
+
+    # capture exit time and status
+    screen.send_commands('''export JARJAR_EXIT=$?;''')
+    screen.send_commands('''export JJ_UNIX_END=$(date -u +%s);''')
+
+    # send notification
+    screen.send_commands(NOTIFY)
+
+    # unset vars
+    screen.send_commands('unset JJ_UNIX_START')
+    screen.send_commands('unset JJ_UNIX_END')
+    screen.send_commands('unset JARJAR_EXIT')
+
+    # attach if needed
+    if ATTACH:
+        os.system('screen -r {}'.format(SCREEN_NAME))
+
+    sys.exit(0)
 
 
 if __name__ == '__main__':
-	main()
+    main()

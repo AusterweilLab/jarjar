@@ -10,3 +10,7 @@ if version == 2:
 	from jarjar import jarjar
 else:
 	from jarjar.jarjar import jarjar
+
+__all__ = [
+	'jarjar'
+]

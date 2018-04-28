@@ -104,8 +104,15 @@ class Screen(object):
 		"""Send commands to the active gnu-screen."""
 		self._check_exists()
 		for command in commands:
+
+			# use single quote unless that is a part of the command
+			if "'" in command:
+				q = "\""
+			else:
+				q = "\'"
+
 			self._screen_commands(
-				'stuff \"{0}\"'.format(command),
+				'stuff {q}{c}{q}'.format(q=q, c=command),
 				'eval "stuff \\015"'
 			)
 
@@ -118,7 +125,6 @@ class Screen(object):
 		self._check_exists()
 		for command in commands:
 			cmd = 'screen -x {0} -p 0 -X {1}'.format(self.name, command)
-			# print(cmd)
 			system(cmd)
 			sleep(0.02)
 

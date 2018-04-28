@@ -5,8 +5,17 @@ import os
 import imp
 import warnings
 
-_no_message_warn = '''Slow down cowboy! You didn't provide a message and there is no default
-in your .jarjar, so I'll just wing it.'''
+# a warning for if the defaultiest message is used
+_no_message_warn = (
+	'''
+	Slow down cowboy! You didn't provide a message and there is
+	no default in your .jarjar, so I'll just wing it.
+	'''
+	.strip()
+	.replace('\n', ' ')
+	.replace('\t', ' ')
+	.replace('  ', ' ')
+)
 
 
 class jarjar():
@@ -66,7 +75,7 @@ class jarjar():
 		"""Infer kwargs for later method calls."""
 		def _get(arg):
 			"""Return provided arg if it exists. Otherwise, infer."""
-			if arg in kwargs:
+			if arg in kwargs and kwargs[arg]:
 				return kwargs[arg]
 
 			# No support for default attach ATM.
@@ -88,7 +97,7 @@ class jarjar():
 				return self.default_message
 
 			# no message is allowed if there is an attach
-			if 'attach' in kwargs and kwargs['attach'] is not None:
+			if 'attach' in kwargs and kwargs['attach']:
 				return None
 
 			# otherwise use a super-default and warn the user.
@@ -147,7 +156,7 @@ class jarjar():
 		kwargs = self._infer_kwargs(attach=attach, **kwargs)
 		return self.text(**kwargs)
 
-	def text(self, text=None, **kwargs):
+	def text(self, message=None, **kwargs):
 		"""Send a text message.
 
 		This is a convenience function which wraps around .post. Arguments
@@ -164,7 +173,7 @@ class jarjar():
 
 		Returns a requests object for the POST request.
 		"""
-		kwargs = self._infer_kwargs(text=text, **kwargs)
+		kwargs = self._infer_kwargs(message=message, **kwargs)
 		return self.post(**kwargs)
 
 	def post(self, message=None, attach=None, channel=None, webhook=None):
