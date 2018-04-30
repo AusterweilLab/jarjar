@@ -20,6 +20,9 @@ _no_message_warn = (
 
 class jarjar():
 
+	_expected_kwargs = ['message', 'attach', 'channel', 'webhook']
+	_final_default_message = 'Meesa Jarjar Binks!'
+
 	def __init__(self, channel=None, webhook=None, message=None):
 
 		# read config file, set defaults
@@ -32,17 +35,17 @@ class jarjar():
 	def _set_defaults(self, channel=None, webhook=None, message=None):
 		"""Set the default channel and webhook and message."""
 		# set default channel
-		if channel is None:
+		if channel in (None, ''):
 			self.default_channel = self.cfg_channel
 		else:
 			self.default_channel = channel
 
-		if webhook is None:
+		if webhook in (None, ''):
 			self.default_webhook = self.cfg_webhook
 		else:
 			self.default_webhook = webhook
 
-		if message is None:
+		if message in (None, ''):
 			self.default_message = self.cfg_message
 		else:
 			self.default_message = message
@@ -75,7 +78,7 @@ class jarjar():
 		"""Infer kwargs for later method calls."""
 		def _get(arg):
 			"""Return provided arg if it exists. Otherwise, infer."""
-			if arg in kwargs and kwargs[arg]:
+			if arg in kwargs and kwargs[arg] not in ('', None):
 				return kwargs[arg]
 
 			# No support for default attach ATM.
@@ -88,7 +91,7 @@ class jarjar():
 			# return defaults for channel and webhook
 			if arg in ['channel', 'webhook']:
 				if not default:
-					raise Exception('No {} provided!'.format(arg))
+					raise NameError('No {} provided!'.format(arg))
 				else:
 					return default
 
@@ -102,7 +105,13 @@ class jarjar():
 
 			# otherwise use a super-default and warn the user.
 			warnings.warn(_no_message_warn)
-			return 'Meesa Jarjar Binks!'
+			return self._final_default_message
+
+		# check unexpected args
+		for k in kwargs.keys():
+			if k in self._expected_kwargs:
+				continue
+			warnings.warn('Recieved unexpected kwarg: `%s`.' % k)
 
 		result = dict()
 		for arg in ['message', 'attach', 'channel', 'webhook']:
@@ -198,19 +207,19 @@ class jarjar():
 			# NoneType handler
 			if arg is None:
 				if not noneable:
-					raise Exception('User did not provide kwarg `{}`.'.format(name))
+					raise NameError('User did not provide kwarg `{}`.'.format(name))
 				else:
 					return
 
 			if not isinstance(arg, types):
-				raise Exception(
+				raise TypeError(
 					'Kwarg `{0}` has invalid type. Options: ({1})'
 					.format(name, ','.join(map(str, types)))
 				)
 
 		# ensure message or attach is provided
 		if message is None and attach is None:
-			raise Exception('user must provide a message or attachment.')
+			raise NameError('user must provide a message or attachment.')
 
 		# check kwargs
 		_check_arg(message, 'message', (str,), noneable=True)
