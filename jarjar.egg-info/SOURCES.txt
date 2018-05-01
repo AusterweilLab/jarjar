@@ -1,6 +1,7 @@
 setup.cfg
 setup.py
 jarjar/__init__.py
+jarjar/_version.py
 jarjar/jarjar.py
 jarjar.egg-info/PKG-INFO
 jarjar.egg-info/SOURCES.txt

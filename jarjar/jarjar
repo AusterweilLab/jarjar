@@ -6,9 +6,9 @@
 # specify screen name doesn't work
 # use default jarjar message when program but not message is specified
 
+from jarjar import __version__
 from jarjar import jarjar
 from _screenutils import Screen
-
 import os
 import sys
 import argparse
@@ -29,6 +29,14 @@ PARSER.add_argument(
     help="Message to send.",
     nargs='*',
     default=[]
+)
+
+PARSER.add_argument(
+    "-v",
+    "--version",
+    help="List JarJar version.",
+    default=False,
+    action='store_true'
 )
 
 PARSER.add_argument(
@@ -145,6 +153,12 @@ def _make_screen_name(command):
 
 def main():
 
+    # output version if requested
+    VERSION = ARGS.version
+    if VERSION:
+        print "JarJar v " + __version__
+        sys.exit()
+
     # parse args
     MESSAGE = ' '.join(ARGS.message)
     WEBHOOK = ARGS.webhook
@@ -158,7 +172,7 @@ def main():
             SCREEN_NAME = None
     else:
         SCREEN_NAME = ARGS.screen_name
-
+        
     # if there is no program, then we're done here...
     if not PROGRAM:
 
