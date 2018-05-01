@@ -34,7 +34,7 @@ PARSER.add_argument(
 PARSER.add_argument(
     "-v",
     "--version",
-    help="List JarJar version.",
+    help="List jarjar version.",
     default=False,
     action='store_true'
 )
@@ -156,7 +156,7 @@ def main():
     # output version if requested
     VERSION = ARGS.version
     if VERSION:
-        print "JarJar v " + __version__
+        print "jarjar v " + __version__
         sys.exit()
 
     # parse args
