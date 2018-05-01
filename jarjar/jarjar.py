@@ -4,6 +4,7 @@ import time
 import os
 import imp
 import warnings
+from _version import __version__
 
 # a warning for if the defaultiest message is used
 _no_message_warn = (

@@ -1,7 +1,18 @@
 from setuptools import setup
+import re
+
+# https://stackoverflow.com/a/7071358/353278
+VERSIONFILE="jarjar/_version.py"
+verstrline = open(VERSIONFILE, "rt").read()
+VSRE = r"^__version__ = ['\"]([^'\"]*)['\"]"
+mo = re.search(VSRE, verstrline, re.M)
+if mo:
+    verstr = mo.group(1)
+else:
+    raise RuntimeError("Unable to find version string in %s." % (VERSIONFILE,))
 
 setup(name='jarjar',
-      version='2.0.2',
+      version=verstr,
       description='Programatically send messages to your slack team',
       url='https://github.com/AusterweilLab/jarjar',
       author='The Austerweil Lab at UW-Madison',
