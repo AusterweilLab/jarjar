@@ -4,25 +4,22 @@ import time
 import os
 import imp
 import warnings
-from _version import __version__
-
-# a warning for if the defaultiest message is used
-_no_message_warn = (
-	'''
-	Slow down cowboy! You didn't provide a message and there is
-	no default in your .jarjar, so I'll just wing it.
-	'''
-	.strip()
-	.replace('\n', ' ')
-	.replace('\t', ' ')
-	.replace('  ', ' ')
-)
 
 
 class jarjar():
 
 	_expected_kwargs = ['message', 'attach', 'channel', 'webhook']
 	_final_default_message = 'Meesa Jarjar Binks!'
+	_no_message_warn = (
+		'''
+		Slow down cowboy! You didn't provide a message and there is
+		no default in your .jarjar, so I'll just wing it.
+		'''
+		.strip()
+		.replace('\n', ' ')
+		.replace('\t', ' ')
+		.replace('  ', ' ')
+	)
 
 	def __init__(self, channel=None, webhook=None, message=None):
 
@@ -105,7 +102,7 @@ class jarjar():
 				return None
 
 			# otherwise use a super-default and warn the user.
-			warnings.warn(_no_message_warn)
+			warnings.warn(self._no_message_warn)
 			return self._final_default_message
 
 		# check unexpected args

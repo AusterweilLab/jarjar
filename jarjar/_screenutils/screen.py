@@ -5,8 +5,6 @@
 # and/or modify it under the terms of the GNU Public License 2 or upper.
 # Please ask if you wish a more permissive license.
 
-from _screenutils.errors import ScreenNotFoundError
-
 try:
 	from commands import getoutput
 except Exception:
@@ -14,6 +12,12 @@ except Exception:
 from os import system
 from time import sleep
 
+class ScreenNotFoundError(Exception):
+    """raised when the screen does not exists"""
+    def __init__(self, message, screen_name):
+        message += " Screen \"{0}\" not found".format(screen_name)
+        self.screen_name = screen_name
+        super(ScreenNotFoundError, self).__init__(message)
 
 def list_screens():
 	"""List all the existing screens and build a Screen instance for each."""

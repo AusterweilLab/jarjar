@@ -1,5 +1,4 @@
-from .errors import ScreenNotFoundError
-from .screen import list_screens, Screen
+from .screen import list_screens, Screen, ScreenNotFoundError
 
 __all__ = (
 	"list_screens",

@@ -8,10 +8,11 @@
 
 from jarjar import __version__
 from jarjar import jarjar
-from _screenutils import Screen
+from jarjar._screenutils import Screen
 import os
 import sys
 import argparse
+import datetime
 import warnings
 
 PARSER = argparse.ArgumentParser()
@@ -71,6 +72,14 @@ PARSER.add_argument(
 )
 
 PARSER.add_argument(
+    "--no-exit",
+    dest='noexit',
+    default=False,
+    help="Do not exit the task screen even if successful.",
+    action='store_true'
+)
+
+PARSER.add_argument(
     "-e",
     dest='echo',
     help=argparse.SUPPRESS,
@@ -92,10 +101,13 @@ if ARGS.echo:
 
 if not ARGS.program:
     if ARGS.attach:
-        warnings.warn('Note: You asked to attach but there is no task to run.')
+        warnings.warn('You asked to attach but there is no task to run.')
 
     if ARGS.screen_name is not None:
-        warnings.warn('Note: You named a screen but there is no task to run.')
+        warnings.warn('You named a screen but there is no task to run.')
+
+    if ARGS.noexit:
+        warnings.warn('You called `--no-exit` but there is no task to run.')
 
 
 def _append_to_name(name):
@@ -113,12 +125,9 @@ def _append_to_name(name):
 
 def _fmt_time(seconds):
     """Convert a seconds integer into a formatted time string."""
-    if seconds < 30:
-        return('{0:d} seconds'.format(seconds))
-    elif seconds < 1800:  # 30 mins
-        return('{0:0.1f} minutes'.format(seconds / 60.0))
-    else:  # hours
-        return('{0:0.1f} hours'.format(seconds / 60.0**2))
+    return (
+        str(datetime.timedelta(seconds=seconds))
+    )
 
 
 def _make_jarjar_shell(m=None, c=None, w=None):
@@ -154,9 +163,8 @@ def _make_screen_name(command):
 def main():
 
     # output version if requested
-    VERSION = ARGS.version
-    if VERSION:
-        print "jarjar v " + __version__
+    if ARGS.version:
+        print("jarjar v %s" % __version__)
         sys.exit()
 
     # parse args
@@ -165,6 +173,7 @@ def main():
     CHANNEL = ARGS.channel
     PROGRAM = ' '.join(ARGS.program)
     ATTACH = ARGS.attach
+    NOEXIT = ARGS.noexit
     if ARGS.screen_name is None:
         if PROGRAM:
             SCREEN_NAME = _make_screen_name(ARGS.program)
@@ -172,7 +181,7 @@ def main():
             SCREEN_NAME = None
     else:
         SCREEN_NAME = ARGS.screen_name
-        
+
     # if there is no program, then we're done here...
     if not PROGRAM:
 
@@ -184,15 +193,20 @@ def main():
             MESSAGE = None
 
         # if vars are defined and there is no message, use them as the default
-        if None not in (UNIX_START, UNIX_END, EXIT) and not MESSAGE:
+        if None not in (UNIX_START, UNIX_END, EXIT):
             SECONDS = int(UNIX_END) - int(UNIX_START)
-            MESSAGE = (
-                'Process exited in {0} with status {1}.'
-                .format(_fmt_time(SECONDS), EXIT)
-            )
+            ATTACHMENT = {
+                'Exit Status': EXIT,
+                'Time Elapsed': _fmt_time(SECONDS)
+            }
+        else:
+            ATTACHMENT = None
 
         # send the notification
-        jarjar(channel=CHANNEL, webhook=WEBHOOK).text(MESSAGE)
+        (
+            jarjar(channel=CHANNEL, webhook=WEBHOOK)
+            .text(MESSAGE, attach=ATTACHMENT)
+        )
         return
 
     # make jarjar shell command
@@ -231,6 +245,7 @@ def main():
 
     # capture exit time and status
     screen.send_commands('''export JARJAR_EXIT=$?;''')
+    screen.send_commands('''JARJAR_EXIT_LOCAL=$JARJAR_EXIT;''')
     screen.send_commands('''export JJ_UNIX_END=$(date -u +%s);''')
 
     # send notification
@@ -240,6 +255,12 @@ def main():
     screen.send_commands('unset JJ_UNIX_START')
     screen.send_commands('unset JJ_UNIX_END')
     screen.send_commands('unset JARJAR_EXIT')
+
+    # send exit command if not no-exit
+    if not NOEXIT:
+        screen.send_commands(
+            '''if [ $JARJAR_EXIT_LOCAL -eq 0 ] ; then exit; fi;'''
+        )
 
     # attach if needed
     if ATTACH:
