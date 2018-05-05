@@ -20,7 +20,7 @@ setup(name='jarjar',
       license='MIT',
       keywords=['slack', 'messaging'],
       packages=['jarjar'],
-      install_requires = ['requests>=2'],
+      install_requires=['requests>=2'],
       classifiers=[
             'Programming Language :: Python :: 2',
             'Programming Language :: Python :: 2.7',

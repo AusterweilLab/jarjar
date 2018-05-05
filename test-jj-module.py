@@ -4,7 +4,7 @@ from jarjar import jarjar
 from itertools import product
 import requests
 
-TEST_NUMBER = 576  # where to start tests
+TEST_NUMBER = 2880  # where to start tests
 
 '''
 TESTS
@@ -34,7 +34,7 @@ def Test(message, attach, channel, webhook, method, at_init):
 	# print the test
 	print('-----------------TEST %d-----------------' % TEST_NUMBER)
 	print(
-		' message %r\n attach %r\n channel %r\n webhook %r\n method %r\n at_init\t%r' %
+		' message %r\n attach %r\n channel %r\n webhook %r\n method %r\n at_init %r' %
 		(message, attach, channel, webhook, method, at_init)
 	)
 
@@ -48,12 +48,16 @@ def Test(message, attach, channel, webhook, method, at_init):
 	request_sent = False
 	try:
 		res = method(message=message, attach=attach, channel=channel, webhook=webhook)
-		time.sleep(TIMEOUT)
+		if webhook == jj.default_webhook:
+			time.sleep(TIMEOUT)
 		request_sent = True
 	except TypeError:
 		# expected if:
 		# - attach is not a dict
+		# - message is not a str
 		if not isinstance(attach, dict):
+			pass
+		elif not isinstance(message, str):
 			pass
 		else:
 			raise
@@ -62,7 +66,7 @@ def Test(message, attach, channel, webhook, method, at_init):
 	except requests.exceptions.ConnectionError:
 		# expected if
 		# - the webhook is not valid
-		if webhook=='https://invalid_url.com':
+		if webhook == 'https://invalid_url.com':
 			pass
 		else:
 			raise
@@ -97,17 +101,19 @@ def Test(message, attach, channel, webhook, method, at_init):
 		assert data['channel'] == jj.default_channel
 
 	# check message
+
 	if message:
 		assert data['text'] == message
 	elif jj.default_message:
 		assert data['text'] == jj.default_message
-	else:
+	elif not attach:
 		assert data['text'] == jj._final_default_message
 
 	# check attach
 	if attach:
-		print data
-		lll
+		title = data['attachments'][0]['fields'][0]['title']
+		value = data['attachments'][0]['fields'][0]['value']
+		assert value == attach[title] or value == str(attach[title])
 
 # iterate thbrough all combos of args and test each.
 combos = product(MESSAGES, ATTACHES, CHANNELS, WEBHOOKS, METHODS, AT_INIT)

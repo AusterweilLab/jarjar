@@ -219,11 +219,18 @@ class jarjar():
 		if message is None and attach is None:
 			raise NameError('user must provide a message or attachment.')
 
+		# define tupe of string types
+		# try/except is control for python 3.
+		try:
+			str_types = (str, unicode)
+		except Exception:
+			str_types = (str,)
+
 		# check kwargs
-		_check_arg(message, 'message', (str,), noneable=True)
+		_check_arg(message, 'message', str_types, noneable=True)
 		_check_arg(attach, 'attach', (dict,), noneable=True)
-		_check_arg(channel, 'channel', (str, list))
-		_check_arg(webhook, 'webhook', (str,))
+		_check_arg(channel, 'channel', str_types + (list, ))
+		_check_arg(webhook, 'webhook', str_types)
 
 		# recursively post to all channels in array of channels
 		if isinstance(channel, list):
