@@ -8,9 +8,15 @@ else:
 # different importing for python 2 and 3
 if version == 2:
 	from jarjar import jarjar
+	from _version import __version__
+	import _screenutils
 else:
 	from jarjar.jarjar import jarjar
+	from jarjar._version import __version__
+	from jarjar import _screenutils
 
 __all__ = [
-	'jarjar'
+	'__version__',
+	'_screenutils',
+	'jarjar',
 ]

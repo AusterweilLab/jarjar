@@ -4,7 +4,7 @@ mywebhook.txt
 *.pyc
 *.sublime-project
 test.py
-python/dist
-python/build
-python/jarjar.egg-info
-python/update-pip.sh
+update-pip.sh
+dist
+build
+jarjar.egg-info

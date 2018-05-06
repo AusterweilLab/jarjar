@@ -1,3 +1,7 @@
+# This file is modified from the screenutils Python module
+# https://pypi.org/project/screenutils/
+# https://github.com/Christophe31/screenutils
+
 # -*- coding:utf-8 -*-
 #
 # This program is free software. It comes without any warranty, to

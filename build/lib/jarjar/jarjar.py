@@ -4,25 +4,22 @@ import time
 import os
 import imp
 import warnings
-from _version import __version__
-
-# a warning for if the defaultiest message is used
-_no_message_warn = (
-	'''
-	Slow down cowboy! You didn't provide a message and there is
-	no default in your .jarjar, so I'll just wing it.
-	'''
-	.strip()
-	.replace('\n', ' ')
-	.replace('\t', ' ')
-	.replace('  ', ' ')
-)
 
 
 class jarjar():
 
 	_expected_kwargs = ['message', 'attach', 'channel', 'webhook']
 	_final_default_message = 'Meesa Jarjar Binks!'
+	_no_message_warn = (
+		'''
+		Slow down cowboy! You didn't provide a message and there is
+		no default in your .jarjar, so I'll just wing it.
+		'''
+		.strip()
+		.replace('\n', ' ')
+		.replace('\t', ' ')
+		.replace('  ', ' ')
+	)
 
 	def __init__(self, channel=None, webhook=None, message=None):
 
@@ -105,7 +102,7 @@ class jarjar():
 				return None
 
 			# otherwise use a super-default and warn the user.
-			warnings.warn(_no_message_warn)
+			warnings.warn(self._no_message_warn)
 			return self._final_default_message
 
 		# check unexpected args
@@ -222,11 +219,18 @@ class jarjar():
 		if message is None and attach is None:
 			raise NameError('user must provide a message or attachment.')
 
+		# define tupe of string types
+		# try/except is control for python 3.
+		try:
+			str_types = (str, unicode)
+		except Exception:
+			str_types = (str,)
+
 		# check kwargs
-		_check_arg(message, 'message', (str,), noneable=True)
+		_check_arg(message, 'message', str_types, noneable=True)
 		_check_arg(attach, 'attach', (dict,), noneable=True)
-		_check_arg(channel, 'channel', (str, list))
-		_check_arg(webhook, 'webhook', (str,))
+		_check_arg(channel, 'channel', str_types + (list, ))
+		_check_arg(webhook, 'webhook', str_types)
 
 		# recursively post to all channels in array of channels
 		if isinstance(channel, list):

@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 import re
 
 # https://stackoverflow.com/a/7071358/353278
@@ -19,7 +19,7 @@ setup(name='jarjar',
       author_email='austerweil.lab@gmail.com',
       license='MIT',
       keywords=['slack', 'messaging'],
-      packages=['jarjar'],
+      packages=find_packages('.'),#['jarjar','jarjar/_screenutils'],
       install_requires=['requests>=2'],
       classifiers=[
             'Programming Language :: Python :: 2',
