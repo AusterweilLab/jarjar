@@ -21,6 +21,7 @@ setup(name='jarjar',
       keywords=['slack', 'messaging'],
       packages=find_packages('.'),
       install_requires=['requests>=2'],
+      zip_safe=False,
       classifiers=[
             'Programming Language :: Python :: 2',
             'Programming Language :: Python :: 2.7',
