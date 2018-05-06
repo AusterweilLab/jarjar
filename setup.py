@@ -19,7 +19,7 @@ setup(name='jarjar',
       author_email='austerweil.lab@gmail.com',
       license='MIT',
       keywords=['slack', 'messaging'],
-      packages=find_packages('.'),#['jarjar','jarjar/_screenutils'],
+      packages=find_packages('.'),
       install_requires=['requests>=2'],
       classifiers=[
             'Programming Language :: Python :: 2',
