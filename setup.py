@@ -30,5 +30,7 @@ setup(name='jarjar',
             'Programming Language :: Python :: 3.4',
             'Programming Language :: Python :: 3.5',
       ],
-      scripts=['bin/jarjar']
+      data_files=[
+        ('/usr/local/bin', ['bin/jarjar'])
+        ]
       )
