@@ -15,7 +15,8 @@ import argparse
 import datetime
 import warnings
 
-PARSER = argparse.ArgumentParser()
+#PARSER = argparse.ArgumentParser()
+PARSER = argparse.ArgumentParser(usage='%(prog)s [program] [options]')
 
 PARSER.add_argument(
     'program',
