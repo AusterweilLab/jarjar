@@ -198,14 +198,14 @@ def main():
             SECONDS = int(UNIX_END) - int(UNIX_START)
             ATTACHMENT = {
                 'Exit Status': EXIT,
-                'Time Elapsed': _fmt_time(SECONDS),
+                'Time Elapsed': _fmt_time(SECONDS)
             }
         else:
             ATTACHMENT = None
 
         # send the notification
         jj = jarjar(channel=CHANNEL, webhook=WEBHOOK)
-        if int(EXIT) > 0:
+        if EXIT is not None and int(EXIT) > 0:
             jj.attachment_args['color'] = "danger"
 
         (
