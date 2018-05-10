@@ -198,8 +198,10 @@ def main():
             SECONDS = int(UNIX_END) - int(UNIX_START)
             ATTACHMENT = {
                 'Exit Status': EXIT,
-                'Time Elapsed': _fmt_time(SECONDS)
+                'Time Elapsed': _fmt_time(SECONDS),
             }
+            if int(EXIT) > 0:
+                ATTACHMENT['_color'] = "danger"
         else:
             ATTACHMENT = None
 
@@ -225,9 +227,8 @@ def main():
             SCREEN_NAME = _append_to_name(SCREEN_NAME)
             screen = Screen(SCREEN_NAME, initialize=False)
 
-    # notify user of the screen name if not provided.
-    if ARGS.screen_name is None:
-        print('Creating screen: `{0}`.'.format(SCREEN_NAME))
+    # notify user of the screen name if a screen is launched
+    print('Creating screen: `{0}`.'.format(SCREEN_NAME))
 
     # spin up the screen and run through the task
     screen.initialize()
