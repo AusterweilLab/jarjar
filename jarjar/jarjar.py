@@ -34,7 +34,6 @@ class jarjar():
                 self.attachment_args = dict(
                         fallback="New attachments are ready!",
                         color="#36a64f",
-                        ts=time.time(),
                         fields=[]
                 )
                 
@@ -129,7 +128,8 @@ class jarjar():
 	def _attachment_formatter(self, attach):
 		"""Format a dict to become a slack attachment."""
 		attachments = self.attachment_args
-
+                attachments['ts'] = time.time()
+                
 		for key in attach:
 
 			if isinstance(attach[key], str):
