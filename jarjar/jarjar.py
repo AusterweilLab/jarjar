@@ -137,14 +137,11 @@ class jarjar():
 			else:
 				outval = str(attach[key])
 
-                        if key == "_color":
-                            attachments['color'] = outval
-                        else:
-                            attachments['fields'].append(dict(
-                                    title=key,
-                                    value=outval,
-                                    short=len(outval) < 20
-                            ))
+                        attachments['fields'].append(dict(
+                                title=key,
+                                value=outval,
+                                short=len(outval) < 20
+                        ))
 
 		return [attachments]
 

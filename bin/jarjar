@@ -200,8 +200,6 @@ def main():
                 'Exit Status': EXIT,
                 'Time Elapsed': _fmt_time(SECONDS),
             }
-            if int(EXIT) > 0:
-                ATTACHMENT['_color'] = "danger"
         else:
             ATTACHMENT = None
 
