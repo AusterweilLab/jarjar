@@ -29,6 +29,15 @@ class jarjar():
 
 		# headers for post request
 		self.headers = {'Content-Type': 'application/json'}
+                
+                # default attachment args
+                self.attachment_args = dict(
+                        fallback="New attachments are ready!",
+                        color="#36a64f",
+                        ts=time.time(),
+                        fields=[]
+                )
+                
 
 	def _set_defaults(self, channel=None, webhook=None, message=None):
 		"""Set the default channel and webhook and message."""
@@ -117,14 +126,9 @@ class jarjar():
 		return result
 
 	@staticmethod
-	def _attachment_formatter(attach):
+	def _attachment_formatter(self, attach):
 		"""Format a dict to become a slack attachment."""
-		attachments = dict(
-			fallback="New attachments are ready!",
-			color="#36a64f",
-			ts=time.time(),
-			fields=[]
-		)
+		attachments = self.attachment_args
 
 		for key in attach:
 
@@ -252,7 +256,7 @@ class jarjar():
 			payload['text'] = message
 
 		if attach is not None:
-			payload['attachments'] = self._attachment_formatter(attach)
+			payload['attachments'] = self._attachment_formatter(self, attach)
 
 		# convert payload to json and return
 		payload = json.dumps(payload)

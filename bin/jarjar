@@ -206,9 +206,12 @@ def main():
             ATTACHMENT = None
 
         # send the notification
+        jj = jarjar(channel=CHANNEL, webhook=WEBHOOK)
+        if int(EXIT) > 0:
+            jj.attachment_args['color'] = "danger"
+
         (
-            jarjar(channel=CHANNEL, webhook=WEBHOOK)
-            .text(MESSAGE, attach=ATTACHMENT)
+            jj.text(MESSAGE, attach=ATTACHMENT)
         )
         return
 
