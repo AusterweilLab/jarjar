@@ -1,11 +1,5 @@
 #! /usr/bin/env python
 
-# TODO:
-# silently suppress unused args
-# return exit status from program
-# specify screen name doesn't work
-# use default jarjar message when program but not message is specified
-
 from jarjar import __version__
 from jarjar import jarjar
 from jarjar._screenutils import Screen
@@ -77,6 +71,14 @@ PARSER.add_argument(
     dest='noexit',
     default=False,
     help="Do not exit the task screen even if successful.",
+    action='store_true'
+)
+
+PARSER.add_argument(
+    "--no-jarjar",
+    dest='nojarjar',
+    help="Do not send a Slack message when the task completes",
+    default=False,
     action='store_true'
 )
 
@@ -208,14 +210,16 @@ def main():
         if EXIT is not None and int(EXIT) > 0:
             jj.attachment_args['color'] = "danger"
 
-        (
-            jj.text(MESSAGE, attach=ATTACHMENT)
-        )
+        RESPONSE = jj.text(MESSAGE, attach=ATTACHMENT)
+        
+        if RESPONSE.status_code != 200:
+            warnings.warn('Response code {0}: {1}'.format(RESPONSE.status_code, RESPONSE.text))
+            
         return
 
     # make jarjar shell command
     NOTIFY = _make_jarjar_shell(m=MESSAGE, w=WEBHOOK, c=CHANNEL)
-
+    
     # make sure screen is unique
     # --- raise error for manual names.
     # --- append suffix for auto names.
@@ -252,7 +256,8 @@ def main():
     screen.send_commands('''export JJ_UNIX_END=$(date -u +%s);''')
 
     # send notification
-    screen.send_commands(NOTIFY)
+    if not ARGS.nojarjar:
+        screen.send_commands(NOTIFY)
 
     # unset vars
     screen.send_commands('unset JJ_UNIX_START')

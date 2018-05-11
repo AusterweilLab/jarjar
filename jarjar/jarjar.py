@@ -5,7 +5,6 @@ import os
 import imp
 import warnings
 
-
 class jarjar():
 
 	_expected_kwargs = ['message', 'attach', 'channel', 'webhook']
@@ -124,7 +123,6 @@ class jarjar():
 			result[arg] = _get(arg)
 		return result
 
-	@staticmethod
 	def _attachment_formatter(self, attach):
 		"""Format a dict to become a slack attachment."""
 		attachments = self.attachment_args
@@ -241,7 +239,7 @@ class jarjar():
 			status = []
 			for c in channel:
 				status.append(
-					self.post(message=message, attach=attach, channel=c, url=webhook)
+					self.post(message=message, attach=attach, channel=c, webhook=webhook)
 				)
 			return status
 
@@ -253,7 +251,7 @@ class jarjar():
 			payload['text'] = message
 
 		if attach is not None:
-			payload['attachments'] = self._attachment_formatter(self, attach)
+			payload['attachments'] = self._attachment_formatter(attach)
 
 		# convert payload to json and return
 		payload = json.dumps(payload)
