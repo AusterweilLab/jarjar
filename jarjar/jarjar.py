@@ -127,7 +127,6 @@ class jarjar():
 	def _attachment_formatter(self, attach):
 		"""Format a dict to become a slack attachment."""
 		attachments = copy.deepcopy(self.attachment_args)
-
 		attachments['ts'] = time.time()
 
 		for key in attach:

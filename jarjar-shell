@@ -184,6 +184,18 @@ def main():
     else:
         SCREEN_NAME = ARGS.screen_name
 
+    # confirm channel and webhook exist
+    jj = jarjar()  # dummy jj to check defaults
+    if not (WEBHOOK or jj.default_webhook):
+        raise NameError(
+            'No webhook to post to. Set up your `.jarjar` or add a webhook!'
+        )
+
+    if not (CHANNEL or jj.default_channel):
+        raise NameError(
+            'No channel to post to. Set up your `.jarjar` or add a channel!'
+        )
+
     # if there is no program, then we're done here...
     if not PROGRAM:
 
@@ -212,7 +224,10 @@ def main():
         RESPONSE = jj.text(MESSAGE, attach=ATTACHMENT)
 
         if RESPONSE.status_code != 200:
-            warnings.warn('Response code {0}: {1}'.format(RESPONSE.status_code, RESPONSE.text))
+            warnings.warn(
+                'Response code {0}: {1}'
+                .format(RESPONSE.status_code, RESPONSE.text)
+            )
 
         return
 
