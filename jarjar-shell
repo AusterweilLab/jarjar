@@ -256,7 +256,7 @@ def main():
     # Run commands
 
     # hide from history
-    screen.send_commands('unset HISTFILE')
+    screen.send_commands('unset HISTFILE;')
 
     # capture start time
     screen.send_commands('''export JJ_UNIX_START=$(date -u +%s);''')
@@ -274,9 +274,9 @@ def main():
         screen.send_commands(NOTIFY)
 
     # unset vars
-    screen.send_commands('unset JJ_UNIX_START')
-    screen.send_commands('unset JJ_UNIX_END')
-    screen.send_commands('unset JARJAR_EXIT')
+    screen.send_commands('unset JJ_UNIX_START;')
+    screen.send_commands('unset JJ_UNIX_END;')
+    screen.send_commands('unset JARJAR_EXIT;')
 
     # send exit command if not no-exit
     if not NOEXIT:

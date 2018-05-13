@@ -136,11 +136,11 @@ class jarjar():
 			else:
 				outval = str(attach[key])
 
-				attachments['fields'].append(dict(
-					title=key,
-					value=outval,
-					short=len(outval) < 20
-				))
+			attachments['fields'].append(dict(
+				title=key,
+				value=outval,
+				short=len(outval) < 20
+			))
 		return [attachments]
 
 	def attach(self, attach=None, **kwargs):
