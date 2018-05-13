@@ -9,7 +9,6 @@ import argparse
 import datetime
 import warnings
 
-#PARSER = argparse.ArgumentParser()
 PARSER = argparse.ArgumentParser(usage='%(prog)s [program] [options]')
 
 PARSER.add_argument(
@@ -211,15 +210,15 @@ def main():
             jj.attachment_args['color'] = "danger"
 
         RESPONSE = jj.text(MESSAGE, attach=ATTACHMENT)
-        
+
         if RESPONSE.status_code != 200:
             warnings.warn('Response code {0}: {1}'.format(RESPONSE.status_code, RESPONSE.text))
-            
+
         return
 
     # make jarjar shell command
     NOTIFY = _make_jarjar_shell(m=MESSAGE, w=WEBHOOK, c=CHANNEL)
-    
+
     # make sure screen is unique
     # --- raise error for manual names.
     # --- append suffix for auto names.

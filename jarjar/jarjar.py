@@ -4,6 +4,8 @@ import time
 import os
 import imp
 import warnings
+import copy
+
 
 class jarjar():
 
@@ -28,14 +30,13 @@ class jarjar():
 
 		# headers for post request
 		self.headers = {'Content-Type': 'application/json'}
-                
-                # default attachment args
-                self.attachment_args = dict(
-                        fallback="New attachments are ready!",
-                        color="#36a64f",
-                        fields=[]
-                )
-                
+
+		# default attachment args
+		self.attachment_args = dict(
+			fallback="New attachments are ready!",
+			color="#36a64f",
+			fields=[]
+		)
 
 	def _set_defaults(self, channel=None, webhook=None, message=None):
 		"""Set the default channel and webhook and message."""
@@ -125,9 +126,10 @@ class jarjar():
 
 	def _attachment_formatter(self, attach):
 		"""Format a dict to become a slack attachment."""
-		attachments = self.attachment_args
-                attachments['ts'] = time.time()
-                
+		attachments = copy.deepcopy(self.attachment_args)
+
+		attachments['ts'] = time.time()
+
 		for key in attach:
 
 			if isinstance(attach[key], str):
@@ -135,12 +137,11 @@ class jarjar():
 			else:
 				outval = str(attach[key])
 
-                        attachments['fields'].append(dict(
-                                title=key,
-                                value=outval,
-                                short=len(outval) < 20
-                        ))
-
+				attachments['fields'].append(dict(
+					title=key,
+					value=outval,
+					short=len(outval) < 20
+				))
 		return [attachments]
 
 	def attach(self, attach=None, **kwargs):
