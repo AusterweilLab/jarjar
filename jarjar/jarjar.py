@@ -38,6 +38,11 @@ class jarjar():
 			fields=[]
 		)
 
+		# default payload args
+                self.payload_args = dict(
+		        channel=channel
+                )
+
 	def _set_defaults(self, channel=None, webhook=None, message=None):
 		"""Set the default channel and webhook and message."""
 		# set default channel
@@ -146,7 +151,7 @@ class jarjar():
 	def attach(self, attach=None, **kwargs):
 		"""Send an attachment.
 
-		This is a convenience function which wraps around .post. Arguments
+		This is a convenience function which wraps around ._post. Arguments
 		not explicitly provided are inferred.
 
 		Arguments
@@ -168,7 +173,7 @@ class jarjar():
 	def text(self, message=None, **kwargs):
 		"""Send a text message.
 
-		This is a convenience function which wraps around .post. Arguments
+		This is a convenience function which wraps around ._post. Arguments
 		not explicitly provided are inferred.
 
 		Arguments
@@ -183,9 +188,9 @@ class jarjar():
 		Returns a requests object for the POST request.
 		"""
 		kwargs = self._infer_kwargs(message=message, **kwargs)
-		return self.post(**kwargs)
+		return self._post(**kwargs)
 
-	def post(self, message=None, attach=None, channel=None, webhook=None):
+	def _post(self, message=None, attach=None, channel=None, webhook=None):
 		"""Send a message to slack.
 
 		Arguments are not inferred and all must be provided. Use the `text` or
@@ -239,12 +244,14 @@ class jarjar():
 			status = []
 			for c in channel:
 				status.append(
-					self.post(message=message, attach=attach, channel=c, webhook=webhook)
+					self._post(message=message, attach=attach, channel=c, webhook=webhook)
 				)
 			return status
 
 		# construct a payload
-		payload = dict(channel=channel)
+		payload = self.payload_args
+                if channel is not None:
+                    payload['channel'] = channel
 
 		# add text and attachments if provided
 		if message is not None:
