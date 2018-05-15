@@ -1,0 +1,8 @@
+#! /bin/sh
+
+# install envs
+virtualenv --python=python2 venv-py2
+virtualenv --python=python3 venv-py3
+
+# run python 2 test
+source venv-py2/bin/activate

@@ -29,17 +29,13 @@ class jarjar():
 		color="#36a64f",
 		fields=[]
 	)
+	payload_args = dict()
 
 	def __init__(self, channel=None, webhook=None, message=None):
 
 		# read config file, set defaults
 		self._read_config()
 		self._set_defaults(channel=channel, webhook=webhook, message=message)
-
-		# default payload args
-		self.payload_args = dict(
-			channel=self.default_channel
-		)
 
 	def _set_defaults(self, channel=None, webhook=None, message=None):
 		"""Set the default channel and webhook and message."""
@@ -255,9 +251,8 @@ class jarjar():
 			return status
 
 		# construct a payload
-		payload = self.payload_args
-		if channel is not None:
-			payload['channel'] = channel
+		payload = copy.deepcopy(self.payload_args)
+		payload['channel'] = channel
 
 		# add text and attachments if provided
 		if message is not None:

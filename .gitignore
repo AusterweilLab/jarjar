@@ -8,3 +8,4 @@ update-pip.sh
 dist/
 build/
 jarjar.egg-info/
+venv*/
