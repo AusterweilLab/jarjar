@@ -24,18 +24,21 @@ class jarjar():
 
 	# defaults; exposed for the user
 	headers = {'Content-Type': 'application/json'}
-	attachment_args = dict(
-		fallback="New attachments are ready!",
-		color="#36a64f",
-		fields=[]
-	)
-	payload_args = dict()
 
 	def __init__(self, channel=None, webhook=None, message=None):
 
 		# read config file, set defaults
 		self._read_config()
 		self._set_defaults(channel=channel, webhook=webhook, message=message)
+
+                # default attach and payload args
+                self.attachment_args = dict(
+                        fallback="New attachments are ready!",
+                        color="#36a64f",
+                        fields=[]
+                )
+                self.payload_args = dict()
+                
 
 	def _set_defaults(self, channel=None, webhook=None, message=None):
 		"""Set the default channel and webhook and message."""
