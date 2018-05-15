@@ -39,9 +39,9 @@ class jarjar():
 		)
 
 		# default payload args
-                self.payload_args = dict(
-		        channel=channel
-                )
+		self.payload_args = dict(
+			channel=channel
+		)
 
 	def _set_defaults(self, channel=None, webhook=None, message=None):
 		"""Set the default channel and webhook and message."""
@@ -250,8 +250,8 @@ class jarjar():
 
 		# construct a payload
 		payload = self.payload_args
-                if channel is not None:
-                    payload['channel'] = channel
+		if channel is not None:
+			payload['channel'] = channel
 
 		# add text and attachments if provided
 		if message is not None:
