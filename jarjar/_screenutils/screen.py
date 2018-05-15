@@ -132,7 +132,7 @@ class Screen(object):
         """Allow to insert generic screen specific commands."""
         self._check_exists()
         for command in commands:
-            cmd = 'screen -x {0} -p 0 -X {1}'.format(self.name, command)
+            cmd = 'screen -x {0}.{1} -p 0 -X {2}'.format(self.id, self.name, command)
             system(cmd)
             sleep(0.02)
 
