@@ -22,25 +22,23 @@ class jarjar():
 		.replace('  ', ' ')
 	)
 
+	# defaults; exposed for the user
+	headers = {'Content-Type': 'application/json'}
+	attachment_args = dict(
+		fallback="New attachments are ready!",
+		color="#36a64f",
+		fields=[]
+	)
+
 	def __init__(self, channel=None, webhook=None, message=None):
 
 		# read config file, set defaults
 		self._read_config()
 		self._set_defaults(channel=channel, webhook=webhook, message=message)
 
-		# headers for post request
-		self.headers = {'Content-Type': 'application/json'}
-
-		# default attachment args
-		self.attachment_args = dict(
-			fallback="New attachments are ready!",
-			color="#36a64f",
-			fields=[]
-		)
-
 		# default payload args
 		self.payload_args = dict(
-			channel=channel
+			channel=self.default_channel
 		)
 
 	def _set_defaults(self, channel=None, webhook=None, message=None):
@@ -189,6 +187,14 @@ class jarjar():
 		"""
 		kwargs = self._infer_kwargs(message=message, **kwargs)
 		return self._post(**kwargs)
+
+	def post(self, *args, **kwargs):
+		"""DEPRECATED. This sends all args to .text and raises a warning."""
+		warnings.warn(
+			'jarjar.post() is deprecated! I\'ll let this slide ' +
+			'but you should switch to text or attach'
+		)
+		return self.text(*args, **kwargs)
 
 	def _post(self, message=None, attach=None, channel=None, webhook=None):
 		"""Send a message to slack.
