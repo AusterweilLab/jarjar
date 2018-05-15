@@ -31,14 +31,13 @@ class jarjar():
 		self._read_config()
 		self._set_defaults(channel=channel, webhook=webhook, message=message)
 
-                # default attach and payload args
-                self.attachment_args = dict(
-                        fallback="New attachments are ready!",
-                        color="#36a64f",
-                        fields=[]
-                )
-                self.payload_args = dict()
-                
+		# default attach and payload args
+		self.attachment_args = dict(
+			fallback="New attachments are ready!",
+			color="#36a64f",
+			fields=[]
+		)
+		self.payload_args = dict()
 
 	def _set_defaults(self, channel=None, webhook=None, message=None):
 		"""Set the default channel and webhook and message."""
