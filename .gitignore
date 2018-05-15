@@ -9,3 +9,4 @@ dist/
 build/
 jarjar.egg-info/
 venv*/
+jarjar-shell
