@@ -9,4 +9,5 @@ dist/
 build/
 jarjar.egg-info/
 venv*/
+install.log
 jarjar-shell
