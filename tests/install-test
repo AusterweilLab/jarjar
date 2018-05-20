@@ -1,14 +1,14 @@
 #! /bin/sh
 
+# run like sh install-test python<VERSION>
+# run like sh install-test python2
+# run like sh install-test python3
+
 # remove old venvs
-echo '\n------ CLEARING ENV ------\n'
-deactivate;
 rm -rf venv/;
 
-echo '\n------ INSTALLING VIRTUALENV ------\n'
-virtualenv --python=python3 venv;
-
 echo '\n------ ACTIVATING VIRTUALENV ------\n'
+virtualenv --python=$1 --no-site-packages venv;
 source venv/bin/activate;
 
 echo '\n------ INSTALLING JARJAR ------\n'
