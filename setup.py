@@ -1,37 +1,7 @@
-from setuptools.command.install import install
 from setuptools import setup
 from setuptools import find_packages
-from setuptools import Distribution
 import re
 
-
-class OnlyGetScriptPath(install):
-	"""Class to enable bin install location.
-
-	see https://stackoverflow.com/a/25176606/353278
-	"""
-
-	def run(self):
-		"""Necessary method for setuptools."""
-		# does not call install.run() by design
-		self.distribution.install_scripts = self.install_scripts
-
-
-def get_setuptools_script_dir():
-	"""Determine the script dir that setuptools would save in.
-
-	see https://stackoverflow.com/a/25176606/353278
-	"""
-	dist = Distribution({'cmdclass': {'install': OnlyGetScriptPath}})
-	dist.dry_run = True  # not sure if necessary, but to be safe
-	dist.parse_config_files()
-	command = dist.get_command_obj('install')
-	command.ensure_finalized()
-	command.run()
-	return dist.install_scripts
-
-
-jarjar_dir = get_setuptools_script_dir()
 
 # get jarjar version
 # https://stackoverflow.com/a/7071358/353278
@@ -64,5 +34,5 @@ setup(
 		'Programming Language :: Python :: 3.5',
 		'Programming Language :: Python :: 3.6',
 	],
-	data_files=[(jarjar_dir, ['bin/jarjar'])]
+	scripts=['bin/jarjar'],
 )

@@ -3,31 +3,29 @@
 # remove old venvs
 echo '\n------ CLEARING ENV ------\n'
 deactivate;
-rm -rf venv-*;
+rm -rf venv/;
 
 echo '\n------ INSTALLING VIRTUALENV ------\n'
-virtualenv --python=python2.7 venv-test;
+virtualenv --python=python3 venv;
 
 echo '\n------ ACTIVATING VIRTUALENV ------\n'
-source venv-test/bin/activate;
-
-echo '\n------ UPDATING PIP ------\n'
-# otherwise you get an error like this
-#	There was a problem confirming the ssl certificate:
-#	[SSL: TLSV1_ALERT_PROTOCOL_VERSION] tlsv1 alert protocol version (_ssl.c:645)
-# I think it has to do with an OSX update
-curl https://bootstrap.pypa.io/get-pip.py | python;
+source venv/bin/activate;
 
 echo '\n------ INSTALLING JARJAR ------\n'
-pip install . --force-reinstall;
+pip install ../. --force-reinstall;
 
 echo '\n------ USAGE TESTS ------\n'
 
-echo 'which jarjar? ' $(which jarjar)
+echo 'Which jarjar?'
+which jarjar
+echo "Exit: $?\n"
+
 echo 'Send a message?'
 jarjar -m 'Test!'
+echo "Exit: $?\n"
 
 echo 'Run a task?'
 jarjar sleep 1 -m i took a nap..
+echo "Exit: $?\n"
 
-echo '\n------ TEST COMPLETE ------\n'
+echo '------ TEST COMPLETE ------'

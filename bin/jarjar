@@ -2,7 +2,7 @@
 
 from jarjar import jarjar
 from jarjar import __version__
-from jarjar._screenutils import Screen
+from jarjar import Screen
 import os
 import sys
 import argparse
