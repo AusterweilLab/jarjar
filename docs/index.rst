@@ -17,8 +17,7 @@ What Can Jarjar Do For Me?
 Jarjar was developed at the `Austerweil Lab at UW-Madison <http://alab.psych.wisc.edu/>`_ as a tool
 for scientists. We use it for all sorts of things, such as:
 
-1. Sending a message ("*Simulations Complete!*") so that we know when long-running
-   processes have finished.
+1. Sending a message so that we know when long-running processes have finished.
 
    .. image:: img/simulations-complete.png
 
@@ -53,11 +52,12 @@ Edit this snippet and add it to ``~/.jarjar``:
 
 .. code-block:: shell
 
-   channel="@username"
-   message="Custom message"
-   webhook="https://hooks.slack.com/services/your/teams/webhook"
+   channel='@username'
+   message='Custom message'
+   webhook='https://hooks.slack.com/services/your/teams/webhook'
 
-If you don't know your team's webhook, you might have to `make one <https://api.slack.com/incoming-webhooks>`_.
+If you don't know your team's webhook, you might have to
+`make one <https://api.slack.com/incoming-webhooks>`_.
 
 Python API
 ----------
@@ -84,7 +84,8 @@ Command Line Tool
 -----------------
 
 We also made a :doc:`command line tool </clt>` for use outside of python scripts.
-The command line tool adds functionality to execute processes and send messages when they complete.
+The command line tool adds functionality to execute processes and send messages when they
+are complete.
 
  .. code-block:: shell
 
@@ -98,18 +99,16 @@ Custom attachments are not supported in the CLT at this time, but everything els
 
  .. code-block:: shell
 
-   jarjar -m 'Hi, everyone!!'' --channel '#general'
-   jarjar -m 'Hi, everyone!!'' --webhook <your-url> -c '#general'
+   jarjar -m 'Meesa jarjar binks!'
+   jarjar -m 'Hi, everyone!!' --webhook '<your-url>' -c '#general'
 
 ********************
 Detailed Documention
 ********************
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
    install
    clt
    api
-
-:ref:`search`

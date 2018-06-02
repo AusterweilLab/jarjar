@@ -9,88 +9,90 @@ import argparse
 import datetime
 import warnings
 
-PARSER = argparse.ArgumentParser(usage='%(prog)s [program] [options]')
+def GetParser():
+	PARSER = argparse.ArgumentParser(usage='%(prog)s [program] [options]')
 
-PARSER.add_argument(
-	'program',
-	help="Set task to run in a screen.",
-	nargs='*',
-	default=[]
-)
+	PARSER.add_argument(
+		'program',
+		help="Set task to run in a screen.",
+		nargs='*',
+		default=[]
+	)
 
-PARSER.add_argument(
-	"-m",
-	"--message",
-	help="Message to send.",
-	nargs='*',
-	default=[]
-)
+	PARSER.add_argument(
+		"-m",
+		"--message",
+		help="Message to send.",
+		nargs='*',
+		default=[]
+	)
 
-PARSER.add_argument(
-	"-v",
-	"--version",
-	help="List jarjar version.",
-	default=False,
-	action='store_true'
-)
+	PARSER.add_argument(
+		"-v",
+		"--version",
+		help="List jarjar version.",
+		default=False,
+		action='store_true'
+	)
 
-PARSER.add_argument(
-	"-w",
-	"--webhook",
-	help="Set webhook target.",
-	default=None
-)
+	PARSER.add_argument(
+		"-w",
+		"--webhook",
+		help="Set webhook target.",
+		default=None
+	)
 
-PARSER.add_argument(
-	"-c", "-u",
-	"--channel",
-	"--user",
-	help="Set user/channel target.",
-	default=None
-)
+	PARSER.add_argument(
+		"-c", "-u",
+		"--channel",
+		"--user",
+		help="Set user/channel target.",
+		default=None
+	)
 
-PARSER.add_argument(
-	"-a", "-r",
-	"--attach",
-	help="Attach to screen.",
-	default=False,
-	action='store_true'
-)
+	PARSER.add_argument(
+		"-a", "-r",
+		"--attach",
+		help="Attach to screen.",
+		default=False,
+		action='store_true'
+	)
 
-PARSER.add_argument(
-	"-S",
-	"--screen_name",
-	dest='screen_name',
-	help="Set the name of the screen. Default to first 10 chars of the task",
-	default=None
-)
+	PARSER.add_argument(
+		"-S",
+		"--screen_name",
+		dest='screen_name',
+		help="Set the name of the screen. Default to first 10 chars of the task",
+		default=None
+	)
 
-PARSER.add_argument(
-	"--no-exit",
-	dest='noexit',
-	default=False,
-	help="Do not exit the task screen even if successful.",
-	action='store_true'
-)
+	PARSER.add_argument(
+		"--no-exit",
+		dest='noexit',
+		default=False,
+		help="Do not exit the task screen even if successful.",
+		action='store_true'
+	)
 
-PARSER.add_argument(
-	"--no-jarjar",
-	dest='nojarjar',
-	help="Do not send a Slack message when the task completes",
-	default=False,
-	action='store_true'
-)
+	PARSER.add_argument(
+		"--no-jarjar",
+		dest='nojarjar',
+		help="Do not send a Slack message when the task completes",
+		default=False,
+		action='store_true'
+	)
 
-PARSER.add_argument(
-	"-e",
-	dest='echo',
-	help=argparse.SUPPRESS,
-	default=False,
-	action='store_true'
-)
+	PARSER.add_argument(
+		"-e",
+		dest='echo',
+		help=argparse.SUPPRESS,
+		default=False,
+		action='store_true'
+	)
+	return PARSER
 
 # get arguments from parser
-ARGS, UNKNOWN = PARSER.parse_known_args()
+ARGS, UNKNOWN = GetParser().parse_known_args()
 
 # warns / checks
 if UNKNOWN:
@@ -282,8 +284,8 @@ def main():
 	screen.send_commands('unset JJ_UNIX_END;')
 	screen.send_commands('unset JARJAR_EXIT;')
 
-	# send exit command if not no-exit
-	if not NOEXIT:
+	# send exit command if not no-exit or attach
+	if not (NOEXIT or ATTACH):
 		screen.send_commands(
 			'''if [ $JARJAR_EXIT_LOCAL -eq 0 ] ; then exit; fi;'''
 		)
