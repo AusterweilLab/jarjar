@@ -14,11 +14,12 @@ which jarjar
 echo "Exit: $?\n"
 
 echo 'Send a message?'
-jarjar -m This is a Python 2 test message
+jarjar -m GLOBAL INSTALL TEST 1/4. This is a Python 2 test message.
 echo "Exit: $?\n"
 
 echo 'Run a task?'
-jarjar sleep 1 -m This is a Python 2 test attachment
+jarjar sleep 1 -m GLOBAL INSTALL TEST 2/4. This is a Python 2 test attachment after sleep 1.
+sleep 2 # wait for jarjar to complete
 echo "Exit: $?\n"
 
 echo '\n------ UNINSTALLING PYTHON2 JARJAR ------\n'
@@ -37,11 +38,12 @@ which jarjar
 echo "Exit: $?\n"
 
 echo 'Send a message?'
-jarjar -m This is a Python 3 test message
+jarjar -m GLOBAL INSTALL TEST 3/4. This is a Python 3 test message.
 echo "Exit: $?\n"
 
 echo 'Run a task?'
-jarjar sleep 1 -m This is a Python 3 attachment
+jarjar sleep 1 -m GLOBAL INSTALL TEST 4/4. This is a Python 3 test attachment after sleep 1.
+sleep 2 # wait for jarjar to complete
 echo "Exit: $?\n"
 
 echo '\n------ UNINSTALLING PYTHON3 JARJAR ------\n'
