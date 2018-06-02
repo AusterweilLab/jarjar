@@ -143,7 +143,11 @@ def _make_jarjar_shell(m=None, c=None, w=None):
 			return [k, '\'{}\''.format(v)]
 
 	# start out the command
-	cmd = ['/usr/bin/env python {}'.format(os.path.realpath(__file__))]
+	cmd = ['{executable} {jarjarfile}'.format(
+			executable=sys.executable,
+			jarjarfile=os.path.realpath(__file__)
+		)
+	]
 
 	# add message if provided
 	if m:
