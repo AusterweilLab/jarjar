@@ -1,3 +1,6 @@
+"""Class file for jarjar
+"""
+
 import requests
 import json
 import time
@@ -8,6 +11,53 @@ import copy
 
 
 class jarjar():
+    """A jarjar slack messenger.
+
+    This is largely a wrapper around functionality in ``requests.post()`` with
+    facilities to store and set default values for the desired message to
+    send, channel to post within, and slack team webhook.
+
+    Inference for these values proceeds as follows.
+
+    1. Any argument provided to :func:`~jarjar.jarjar.text` or
+       :func:`~jarjar.jarjar.attach` supersedes all defaults.
+    2. Defaults can be provided at initialization or via a config file
+       (``~/.jarjar``), which looks like:
+
+    .. code::
+
+        channel="@username"
+        message="Custom message"
+        webhook="https://hooks.slack.com/services/your/teams/webhook"
+
+    3. Arguments provided  at initialization supersede those in ``~/.jarjar``.
+       If the channel or webhook arguments are never provided, an error is
+       raised. If the channel and webhook are provided but not a message or
+       attachment, jarjar will make something up.
+
+    Methods
+    -------
+    attach(attach, channel=None, webhook=None, message=None)
+        Send an attachment. User may also include a text message.
+    text(message, channel=None, webhook=None, attach=None)
+        Send a text message. User may also include an attachment.
+    set_webhook(webhook)
+        Set jarjar's default webhook.
+    set_channel(channel)
+        Set jarjar's default channel.
+    set_message(message)
+        Set jarjar's default message.
+
+    Parameters
+    ----------
+    message : str
+        Optional. Default message to send.
+    channel : str,  list
+        Optional. Name of the default channel to post within.
+    webhook : str
+        Optional. Webhook URL for the default slack team.
+
+    """
 
     _expected_kwargs = ['message', 'attach', 'channel', 'webhook']
     _final_default_message = 'Meesa Jarjar Binks!'
@@ -25,7 +75,7 @@ class jarjar():
     # defaults; exposed for the user
     headers = {'Content-Type': 'application/json'}
 
-    def __init__(self, channel=None, webhook=None, message=None):
+    def __init__(self, message=None, channel=None, webhook=None):
 
         # read config file, set defaults
         self._read_config()
@@ -147,47 +197,71 @@ class jarjar():
     def attach(self, attach=None, **kwargs):
         """Send an attachment.
 
-        This is a convenience function which wraps around ._post. Arguments
-        not explicitly provided are inferred.
+        This method is largely identical to :func:`~jarjar.jarjar.text`,
+        only differing in the first argument (``attach``), which is expected
+        to be a dictionary.
 
-        Arguments
+        Parameters
+        ----------
+        attach : dict
+            Attachment data. Optional *but weird if you don't provide one*.
+            All values are converted to string for the slack payload so don't
+            sweat it.
+        message : str
+            Text to send. Optional. If attach is None and there is no
+            default *and* you don't provide one here, jarjar just wings it.
+        channel : str,  list
+            Optional. Name of the channel to post within.
+            Can also be a list of channel names; jarjar will post to each.
+        webhook : str
+            Optional. Webhook URL for the slack team.
 
-        * message (str; optional): Text to send. If attach is None and there is no
-        default, jarjar just makes it up.
-        * attach (dict; optional): Attachment data. All values are converted to str.
-        * channel (str or list; optional): Name of the channel to post within.
-        Can also be a list of channel names; jarjar will post to each.
-        * webhook (str; optional): Webhook URL for the slack team.
+        Returns
+        -------
+        response : requests.models.Response
+            Requests response object for the POST request to slack.
 
-        Returns a requests object for the POST request.
         """
         if attach is None:
-            warnings.warn('You called `attach` but there is no attachment? Weird.')
+            warnings.warn(
+                'You called `attach` but there is no attachment? Weird.'
+            )
         kwargs = self._infer_kwargs(attach=attach, **kwargs)
         return self.text(**kwargs)
 
     def text(self, message=None, **kwargs):
         """Send a text message.
 
-        This is a convenience function which wraps around ._post. Arguments
-        not explicitly provided are inferred.
+        This method is largely identical to :func:`~jarjar.jarjar.attach`, only
+        differing in the first argument (``message``), which is expected to be
+        a string.
 
-        Arguments
+        Parameters
+        ----------
+        message : str
+            Text to send. Optional *but weird if you don't provide one*.
+            If attach is None and there is no default *and* you don't provide
+            one here, jarjar just wings it.
+        attach : dict
+            Attachment data. Optional. All values are converted to string for
+            the slack payload so don't sweat it.
+        channel : str,  list
+            Optional. Name of the channel to post within.
+            Can also be a list of channel names; jarjar will post to each.
+        webhook : str
+            Optional. Webhook URL for the slack team.
 
-        * message (str; optional): Text to send. If attach is None and there is no
-        default, jarjar just makes it up.
-        * attach (dict; optional): Attachment data. All values are converted to str.
-        * channel (str or list; optional): Name of the channel to post within.
-        Can also be a list of channel names; jarjar will post to each.
-        * webhook (str; optional): Webhook URL for the slack team.
+        Returns
+        -------
+        response : requests.models.Response
+            Requests response object for the POST request to slack.
 
-        Returns a requests object for the POST request.
         """
         kwargs = self._infer_kwargs(message=message, **kwargs)
         return self._post(**kwargs)
 
     def post(self, *args, **kwargs):
-        """DEPRECATED. This sends all args to .text and raises a warning."""
+        """**DEPRECATED**. Pass args to .text and raises a warning."""
         warnings.warn(
             'jarjar.post() is deprecated! I\'ll let this slide ' +
             'but you should switch to text or attach'
@@ -200,23 +274,34 @@ class jarjar():
         Arguments are not inferred and all must be provided. Use the `text` or
         `attach` methods for argument inference.
 
-        Arguments
+        Parameters
+        ----------
+        message : str, NoneType
+            Text to send.
 
-        * message (str; optional): Text to send. Must be provided if attach is None.
-        * attach (dict; optional): Attachment data. All values are converted to str.
-        Must be provided if message is None.
-        * channel (str or list): Name of the channel to post within. Can also be a
-        list of channel names; jarjar will post to each.
-        * webhook (str; optional): Webhook URL for the slack team.
+        attach : dict, NoneType
+            Attachment data.
 
-        Returns a requests object for the POST request.
+        channel : str,  list
+            Optional. Name of the channel to post within.
+            Can also be a list of channel names; jarjar will post to each.
+        webhook : str
+            Optional. Webhook URL for the slack team.
+
+        Returns
+        -------
+        response : requests.models.Response
+            Requests response object for the POST request to slack.
+
         """
         def _check_arg(arg, name, types, noneable=False):
             """Ensure arguments are valid."""
             # NoneType handler
             if arg is None:
                 if not noneable:
-                    raise NameError('User did not provide kwarg `{}`.'.format(name))
+                    raise NameError(
+                        'User did not provide kwarg `{}`.'.format(name)
+                    )
                 else:
                     return
 
@@ -248,7 +333,12 @@ class jarjar():
             status = []
             for c in channel:
                 status.append(
-                    self._post(message=message, attach=attach, channel=c, webhook=webhook)
+                    self._post(
+                        message=message,
+                        attach=attach,
+                        channel=c,
+                        webhook=webhook
+                    )
                 )
             return status
 
@@ -268,13 +358,34 @@ class jarjar():
         return requests.post(webhook, data=payload, headers=self.headers)
 
     def set_webhook(self, webhook):
-        """Set default webhook."""
+        """Set default webhook.
+
+        Parameters
+        ----------
+        webhook : str
+            Webhook URL for the slack team.
+
+        """
         self.default_webhook = webhook
 
     def set_channel(self, channel):
-        """Set default channel."""
+        """Set default channel.
+
+        Parameters
+        ----------
+        channel : str
+            Name of the channel to post within.
+
+        """
         self.default_channel = channel
 
     def set_message(self, message):
-        """Set default message."""
+        """Set default message.
+
+        Parameters
+        ----------
+        message : str
+            Default message to send.
+
+        """
         self.default_message = message
