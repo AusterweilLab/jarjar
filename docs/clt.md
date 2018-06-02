@@ -1,6 +1,6 @@
 # Using the jarjar command line tool
 
-The CLT provides basic posting functionality like in the python API but it also allows provides a useful task execution facility.
+The CLT provides basic posting functionality like in the python API but it also provides a useful task execution facility.
 
 ## Posting to your team
 
