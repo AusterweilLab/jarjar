@@ -280,8 +280,17 @@ def main():
 
         # send exit command if not no-exit or attach
         if not (NOEXIT or ATTACH):
+            # some versions of screen require the variable to be escaped; this conditional will test
+            # whether variables need to be escaped and then exit if $JARJAR_EXIT equals 0
             screen.send_commands(
-                '''if [ -z $JARJAR_EXIT ]; then if [ \$JARJAR_EXIT -eq 0 ] ; then exit; fi; else if [ $JARJAR_EXIT -eq 0 ] ; then exit; fi; fi;'''
+                '''if [ -z $JARJAR_EXIT ];
+                    then if [ \$JARJAR_EXIT -eq 0 ] ; 
+                        then exit; 
+                        fi;
+                    else if [ $JARJAR_EXIT -eq 0 ] ;
+                        then exit; 
+                        fi;
+                    fi;'''
             )
 
         # attach if needed
