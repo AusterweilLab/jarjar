@@ -281,7 +281,7 @@ def main():
         # send exit command if not no-exit or attach
         if not (NOEXIT or ATTACH):
             screen.send_commands(
-                '''if ![ -z $JARJAR_EXIT ]; then if [ $JARJAR_EXIT -eq 0 ] ; then exit; fi; else if [ \$JARJAR_EXIT -eq 0 ] ; then exit; fi; fi;'''
+                '''if [ -z $JARJAR_EXIT ]; then if [ \$JARJAR_EXIT -eq 0 ] ; then exit; fi; else if [ $JARJAR_EXIT -eq 0 ] ; then exit; fi; fi;'''
             )
 
         # attach if needed
