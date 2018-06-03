@@ -111,6 +111,9 @@ if not ARGS.program:
 	if ARGS.noexit:
 		warnings.warn('You called `--no-exit` but there is no task to run.')
 
+	if ARGS.nojarjar:
+		warnings.warn('You called `--no-jarjar` but there is no task to run.')
+
 
 def _append_to_name(name):
 	"""Append an `__{integer}` to a name or add to it."""
@@ -284,11 +287,11 @@ def main():
             # whether variables need to be escaped and then exit if $JARJAR_EXIT equals 0
             screen.send_commands(
                 '''if [ -z $JARJAR_EXIT ];
-                    then if [ \$JARJAR_EXIT -eq 0 ] ; 
-                        then exit; 
+                    then if [ \$JARJAR_EXIT -eq 0 ] ;
+                        then exit;
                         fi;
                     else if [ $JARJAR_EXIT -eq 0 ] ;
-                        then exit; 
+                        then exit;
                         fi;
                     fi;'''
             )
