@@ -261,38 +261,32 @@ def main():
 	# ------------
 	# Run commands
 
-	# hide from history
-	screen.send_commands('unset HISTFILE;')
+        # hide from history
+        screen.send_commands('unset HISTFILE;')
 
-	# capture start time
-	screen.send_commands('''export JJ_UNIX_START=$(date -u +%s);''')
+        # capture start time
+        screen.send_commands('''export JJ_UNIX_START=$(date -u +%s);''')
 
-	# run command
-	screen.send_commands(PROGRAM)
+        # run command
+        screen.send_commands(PROGRAM)
 
-	# capture exit time and status
-	screen.send_commands('''export JARJAR_EXIT=$?;''')
-	screen.send_commands('''JARJAR_EXIT_LOCAL=$JARJAR_EXIT;''')
-	screen.send_commands('''export JJ_UNIX_END=$(date -u +%s);''')
+        # capture exit time and status
+        screen.send_commands('''export JARJAR_EXIT=$?;''')
+        screen.send_commands('''export JJ_UNIX_END=$(date -u +%s);''')
 
-	# send notification
-	if not ARGS.nojarjar:
-		screen.send_commands(NOTIFY)
+        # send notification
+        if not ARGS.nojarjar:
+            screen.send_commands(NOTIFY)
 
-	# unset vars
-	screen.send_commands('unset JJ_UNIX_START;')
-	screen.send_commands('unset JJ_UNIX_END;')
-	screen.send_commands('unset JARJAR_EXIT;')
+        # send exit command if not no-exit or attach
+        if not (NOEXIT or ATTACH):
+            screen.send_commands(
+                '''if ![ -z $JARJAR_EXIT ]; then if [ $JARJAR_EXIT -eq 0 ] ; then exit; fi; else if [ \$JARJAR_EXIT -eq 0 ] ; then exit; fi; fi;'''
+            )
 
-	# send exit command if not no-exit or attach
-	if not (NOEXIT or ATTACH):
-		screen.send_commands(
-			'''if [ $JARJAR_EXIT_LOCAL -eq 0 ] ; then exit; fi;'''
-		)
-
-	# attach if needed
-	if ATTACH:
-		os.system('screen -r {}'.format(SCREEN_NAME))
+        # attach if needed
+        if ATTACH:
+            os.system('screen -r {}'.format(SCREEN_NAME))
 
 	sys.exit(0)
 
