@@ -6,7 +6,6 @@ The CLT provides basic posting functionality like in the python API but it also 
 
 The jarjar CLT offers all the functionality of the python API, except for posting attachments (sorry). Posting messages is super easy though!
 
-
 You can use your defaults from .jarjar
 ```sh
 jarjar --message 'Meesa jarjar binks!'
@@ -24,6 +23,12 @@ We use jarjar to run a lot of longer processes when we don't want to keep our te
 
 ```sh
 jarjar sleep 3600
+```
+
+Generally speaking it is safer to wrap your program in quotes so that its clear which arguments are meant for jarjar and which are meant for your task.
+
+```sh
+jarjar 'python3 simulations.py --niters 100 --out results.csv'
 ```
 
 Now you can head out for some lunch. Here's what's going on under the hood:
