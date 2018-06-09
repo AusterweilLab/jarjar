@@ -114,6 +114,12 @@ if not ARGS.program:
 	if ARGS.nojarjar:
 		warnings.warn('You called `--no-jarjar` but there is no task to run.')
 
+# check screen is availible
+if ARGS.program and os.system('which screen') != 0:
+	raise RuntimeError(
+		'Jarjar cannot find `screen`! ' +
+		'Make sure it is on your path and try again.'
+	)
 
 def _append_to_name(name):
 	"""Append an `__{integer}` to a name or add to it."""
