@@ -20,8 +20,6 @@ Jarjar was developed at the [Austerweil Lab at UW-Madison](http://alab.psych.wis
 
 ## Quickstart
 
-### Install
-
 [Installation](docs/install.md) is simple!
 
 ```shell
@@ -83,3 +81,6 @@ jarjar -m 'Hi, everyone!!' --webhook '<your-url>' -c '#general'
 
 We're on [Read The Docs](http://jarjar.readthedocs.io/en/latest/)!
 
+## Having Trouble? Or a feature request?
+
+We are terrible developers and you'll probably run into all sorts of problems. Don't be shy, [file an issue on github](https://github.com/AusterweilLab/jarjar/issues/new)!
