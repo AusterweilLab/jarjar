@@ -72,7 +72,7 @@ And then in your slack team:
 
 Custom attachments are not supported in the CLT at this time, but everything else is:
 
-```shell
+```sh
 jarjar -m 'Meesa jarjar binks!'
 jarjar -m 'Hi, everyone!!' --webhook '<your-url>' -c '#general'
 ```
