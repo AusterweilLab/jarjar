@@ -4,12 +4,12 @@ from jarjar import jarjar
 from itertools import product
 import requests
 
-TEST_NUMBER = 2880  # where to start tests
+TEST_NUMBER=0
 
 '''
 TESTS
 
-1. All combos of arguments that i can think of
+1. All reasonable combos of arguments
 2. Provided at init or at request time
 3. To either the attach or test methods
 '''
@@ -21,10 +21,10 @@ jj = jarjar()
 TIMEOUT = 2.0
 
 # define test space
-MESSAGES = ['Test', '', None, False, True, 123, dict(a=1), u'Unicode \ua000', jj.default_message]
-ATTACHES = ['Test', '', None, False, True, 123, dict(a=1), u'Unicode \ua000']
-CHANNELS = [jj.default_channel, '#jarjar', None, '', 'jarjar', 'undefined_channel']
-WEBHOOKS = [jj.default_webhook, '', None, 'https://invalid_url.com']
+MESSAGES = ['Test', None, u'Unicode \ua000']
+ATTACHES = [None, dict(a=1), dict(a=u'Unicode \ua000'),  {u'\ua000':'test'}]
+CHANNELS = [u'#jarjar', None, 'undefined_channel']
+WEBHOOKS = [None, 'https://invalid_url.com']
 METHODS = ['text', 'attach']
 AT_INIT = [True, False]
 

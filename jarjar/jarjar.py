@@ -185,7 +185,12 @@ class jarjar():
             if isinstance(attach[key], str):
                 outval = attach[key]
             else:
-                outval = str(attach[key])
+                try:
+                    outval = str(attach[key])
+                except UnicodeEncodeError:
+                    outval = unicode(attach[key])
+                except Exception:
+                    raise
 
             attachments['fields'].append(dict(
                 title=key,
