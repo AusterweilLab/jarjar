@@ -1,0 +1,38 @@
+#! /bin/sh
+
+if [ -z "$1" ]; then
+	echo 'No python supplied. using python3...'
+	python_version='python3'
+else
+	python_version=$1
+fi
+
+# run like sh install-venv python<VERSION>
+# sh install-venv python2
+# sh install-venv python3
+
+# remove old venvs
+rm -rf venv/;
+
+echo '\n------ ACTIVATING VIRTUALENV ------\n'
+virtualenv --python=$python_version --no-site-packages venv;
+source venv/bin/activate;
+
+echo '\n------ INSTALLING JARJAR ------\n'
+pip install ../. --force-reinstall;
+
+echo '\n------ USAGE TESTS ------\n'
+
+echo 'Which jarjar?'
+which jarjar
+echo "Exit: $?\n"
+
+echo 'Send a message?'
+jarjar -m VENV INSTALL TEST 1/2. This is a $python_version test message.
+echo "Exit: $?\n"
+
+echo 'Run a task?'
+jarjar sleep 1 -m VENV INSTALL TEST 2/2. This is a $python_version test attachment after doing sleep 1.
+echo "Exit: $?\n"
+
+echo '------ TEST COMPLETE ------'

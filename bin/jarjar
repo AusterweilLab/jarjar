@@ -1,0 +1,313 @@
+#! /usr/bin/env python
+
+from jarjar import jarjar
+from jarjar import __version__
+from jarjar import Screen
+import os
+import sys
+import argparse
+import datetime
+import warnings
+
+PARSER = argparse.ArgumentParser(usage='%(prog)s [program] [options]')
+
+PARSER.add_argument(
+    'program',
+    help="Set task to run in a screen.",
+    nargs='*',
+    default=[]
+)
+
+PARSER.add_argument(
+    "-m",
+    "--message",
+    help="Message to send.",
+    nargs='*',
+    default=[]
+)
+
+PARSER.add_argument(
+    "-v",
+    "--version",
+    help="List jarjar version.",
+    default=False,
+    action='store_true'
+)
+
+PARSER.add_argument(
+    "-w",
+    "--webhook",
+    help="Set webhook target.",
+    default=None
+)
+
+PARSER.add_argument(
+    "-c", "-u",
+    "--channel",
+    "--user",
+    help="Set user/channel target.",
+    default=None
+)
+
+PARSER.add_argument(
+    "-a", "-r",
+    "--attach",
+    help="Attach to screen.",
+    default=False,
+    action='store_true'
+)
+
+PARSER.add_argument(
+    "-S",
+    "--screen_name",
+    dest='screen_name',
+    help="Set the name of the screen. Default to first 10 chars of the task",
+    default=None
+)
+
+PARSER.add_argument(
+    "--no-exit",
+    dest='noexit',
+    default=False,
+    help="Do not exit the task screen even if successful.",
+    action='store_true'
+)
+
+PARSER.add_argument(
+    "--no-jarjar",
+    dest='nojarjar',
+    help="Do not send a Slack message when the task completes",
+    default=False,
+    action='store_true'
+)
+
+PARSER.add_argument(
+    "-e",
+    dest='echo',
+    help=argparse.SUPPRESS,
+    default=False,
+    action='store_true'
+)
+
+# get arguments from parser
+ARGS, UNKNOWN = PARSER.parse_known_args()
+
+# warns / checks
+if UNKNOWN:
+    warnings.warn(
+        'Ignoring unknown arguments `{}`.'.format(' '.join(UNKNOWN))
+    )
+
+if ARGS.echo:
+    print('Psst-- `-e` is no longer needed!')
+
+if not ARGS.program:
+    if ARGS.attach:
+        warnings.warn('You asked to attach but there is no task to run.')
+
+    if ARGS.screen_name is not None:
+        warnings.warn('You named a screen but there is no task to run.')
+
+    if ARGS.noexit:
+        warnings.warn('You called `--no-exit` but there is no task to run.')
+
+    if ARGS.nojarjar:
+        warnings.warn('You called `--no-jarjar` but there is no task to run.')
+
+# check screen is availible
+if ARGS.program and os.system('which screen') != 0:
+    raise RuntimeError(
+        'Jarjar cannot find `screen`! ' +
+        'Make sure it is on your path and try again.'
+    )
+
+def _append_to_name(name):
+    """Append an `__{integer}` to a name or add to it."""
+
+    suffix = '__'
+    appended = suffix in name and name.split(suffix)[-1].isdigit()
+    if not appended:
+        return name + suffix + '1'
+
+    parts = name.split(suffix)
+    stem = suffix.join(parts[:-1])
+    return stem + suffix + str(int(parts[-1]) + 1)
+
+
+def _fmt_time(seconds):
+    """Convert a seconds integer into a formatted time string."""
+    return (
+        str(datetime.timedelta(seconds=seconds))
+    )
+
+
+def _make_jarjar_shell(m=None, c=None, w=None):
+    """Construct a jarjar shell command."""
+
+    def make_flag(k, v):
+        """Ignore flag if None, otherwise wrap in single quotes."""
+        if v is None:
+            return []
+        else:
+            return [k, '\'{}\''.format(v)]
+
+    # start out the command
+    cmd = [
+        '{executable} {jarjarfile}'
+        .format(
+            executable=sys.executable,
+            jarjarfile=os.path.realpath(__file__)
+        )
+    ]
+
+    # add message if provided
+    if m:
+        cmd += make_flag('--message', m)
+
+    cmd += make_flag('--channel', c)
+    cmd += make_flag('--webhook', w)
+    return ' '.join(cmd)
+
+
+def _make_screen_name(command):
+    return (
+        '_'.join(command)
+        .replace(' ', '_')
+        .replace(';', '_')
+    )[:10]
+
+
+def main():
+
+    # output version if requested
+    if ARGS.version:
+        print("jarjar v %s" % __version__)
+        sys.exit()
+
+    # parse args
+    MESSAGE = ' '.join(ARGS.message)
+    WEBHOOK = ARGS.webhook
+    CHANNEL = ARGS.channel
+    PROGRAM = ' '.join(ARGS.program)
+    ATTACH = ARGS.attach
+    NOEXIT = ARGS.noexit
+    if ARGS.screen_name is None:
+        if PROGRAM:
+            SCREEN_NAME = _make_screen_name(ARGS.program)
+        else:
+            SCREEN_NAME = None
+    else:
+        SCREEN_NAME = ARGS.screen_name
+
+    # confirm channel and webhook exist
+    jj = jarjar()  # dummy jj to check defaults
+    if not (WEBHOOK or jj.default_webhook):
+        raise NameError(
+            'No webhook to post to. Set up your `.jarjar` or add a webhook!'
+        )
+
+    if not (CHANNEL or jj.default_channel):
+        raise NameError(
+            'No channel to post to. Set up your `.jarjar` or add a channel!'
+        )
+
+    # if there is no program, then we're done here...
+    if not PROGRAM:
+
+        # get env variables
+        UNIX_START = os.environ.get('JJ_UNIX_START')
+        UNIX_END = os.environ.get('JJ_UNIX_END')
+        EXIT = os.environ.get('JARJAR_EXIT')
+        if not MESSAGE:
+            MESSAGE = None
+
+        # if vars are defined and there is no message, use them as the default
+        if None not in (UNIX_START, UNIX_END, EXIT):
+            SECONDS = int(UNIX_END) - int(UNIX_START)
+            ATTACHMENT = {
+                'Exit Status': EXIT,
+                'Time Elapsed': _fmt_time(SECONDS)
+            }
+        else:
+            ATTACHMENT = None
+
+        # send the notification
+        jj = jarjar(channel=CHANNEL, webhook=WEBHOOK)
+        if EXIT is not None and int(EXIT) > 0:
+            jj.attachment_args['color'] = "danger"
+
+        RESPONSE = jj.text(MESSAGE, attach=ATTACHMENT)
+
+        if RESPONSE.status_code != 200:
+            warnings.warn(
+                'Response code {0}: {1}'
+                .format(RESPONSE.status_code, RESPONSE.text)
+            )
+
+        return
+
+    # make jarjar shell command
+    NOTIFY = _make_jarjar_shell(m=MESSAGE, w=WEBHOOK, c=CHANNEL)
+
+    # make sure screen is unique
+    # --- raise error for manual names.
+    # --- append suffix for auto names.
+    screen = Screen(SCREEN_NAME, initialize=False)
+    if screen.exists:
+        if ARGS.screen_name is not None:
+            raise Exception('There is already a screen by that name!')
+
+        while screen.exists:
+            SCREEN_NAME = _append_to_name(SCREEN_NAME)
+            screen = Screen(SCREEN_NAME, initialize=False)
+
+    # notify user of the screen name if a screen is launched
+    print('Creating screen: `{0}`.'.format(SCREEN_NAME))
+
+    # spin up the screen and run through the task
+    screen.initialize()
+
+    # ------------
+    # Run commands
+
+    # hide from history
+    screen.send_commands('unset HISTFILE;')
+
+    # capture start time
+    screen.send_commands('''export JJ_UNIX_START=$(date -u +%s);''')
+
+    # run command
+    screen.send_commands(PROGRAM)
+
+    # capture exit time and status
+    screen.send_commands('''export JARJAR_EXIT=$?;''')
+    screen.send_commands('''export JJ_UNIX_END=$(date -u +%s);''')
+
+    # send notification
+    if not ARGS.nojarjar:
+        screen.send_commands(NOTIFY)
+
+    # send exit command if not no-exit or attach
+    if not (NOEXIT or ATTACH):
+        # some versions of screen require the variable to be escaped; this conditional will test
+        # whether variables need to be escaped and then exit if $JARJAR_EXIT equals 0
+        screen.send_commands(
+            '''if [ -z $JARJAR_EXIT ];
+                then if [ \$JARJAR_EXIT -eq 0 ] ;
+                    then exit;
+                    fi;
+                else if [ $JARJAR_EXIT -eq 0 ] ;
+                    then exit;
+                    fi;
+                fi;'''
+        )
+
+        # attach if needed
+        if ATTACH:
+            os.system('screen -r {}'.format(SCREEN_NAME))
+
+    sys.exit(0)
+
+
+if __name__ == '__main__':
+    main()

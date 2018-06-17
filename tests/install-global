@@ -1,0 +1,53 @@
+#! /bin/sh
+
+echo '\n------ UNINSTALLING OLD JARJARS ------\n'
+pip2 uninstall jarjar -y
+pip3 uninstall jarjar -y
+
+echo '\n------ INSTALLING JARJAR (PYTHON2) ------\n'
+pip2 install ../. --force-reinstall;
+
+echo '\n------ USAGE TESTS (PYTHON2) ------\n'
+
+echo 'Which jarjar?'
+which jarjar
+echo "Exit: $?\n"
+
+echo 'Send a message?'
+jarjar -m GLOBAL INSTALL TEST 1/4. This is a Python 2 test message.
+echo "Exit: $?\n"
+
+echo 'Run a task?'
+jarjar sleep 1 -m GLOBAL INSTALL TEST 2/4. This is a Python 2 test attachment after sleep 1.
+sleep 2 # wait for jarjar to complete
+echo "Exit: $?\n"
+
+echo '\n------ UNINSTALLING PYTHON2 JARJAR ------\n'
+
+pip2 uninstall jarjar -y
+
+echo '\n------ PYTHON2 COMPLETE ------\n'
+
+echo '\n------ INSTALLING JARJAR (PYTHON3) ------\n'
+pip3 install ../. --force-reinstall;
+
+echo '\n------ USAGE TESTS (PYTHON3) ------\n'
+
+echo 'Which jarjar?'
+which jarjar
+echo "Exit: $?\n"
+
+echo 'Send a message?'
+jarjar -m GLOBAL INSTALL TEST 3/4. This is a Python 3 test message.
+echo "Exit: $?\n"
+
+echo 'Run a task?'
+jarjar sleep 1 -m GLOBAL INSTALL TEST 4/4. This is a Python 3 test attachment after sleep 1.
+sleep 2 # wait for jarjar to complete
+echo "Exit: $?\n"
+
+echo '\n------ UNINSTALLING PYTHON3 JARJAR ------\n'
+
+pip3 uninstall jarjar -y
+
+echo '\n------ PYTHON3 COMPLETE ------\n'

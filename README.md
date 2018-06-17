@@ -1,132 +1,89 @@
 # Jarjar Slack Notifier
 
-Jarjar is a collection of scripts that lets you programmatically send notifications to your Slack team. 
+Jarjar is a python utility that makes it easy to send slack notifications to your teams. You can import it as a python module or use our command line tool.
+
+[![Documentation Status](https://readthedocs.org/projects/jarjar/badge/?version=latest)](https://jarjar.readthedocs.io/en/latest/?badge=latest) [![PyPI version](https://badge.fury.io/py/jarjar.svg)](https://badge.fury.io/py/jarjar)
+
 
 ## What can jarjar do for me?
 
-Here are some things _we_ use it for:
+Jarjar was developed at the [Austerweil Lab at UW-Madison](http://alab.psych.wisc.edu/) as a tool for scientists. We use it for all sorts of things, such as:
 
-- Send reminders to yourself/group.
-- Notify users when their jobs (simulations, backups, etc) are completed.
-- Combine jarjar with cron to send out [daily positive vibes](http://i.imgur.com/YkqMwCx.png).
+1. Sending a message so that we know when long-running processes have finished.
 
+![](docs/img/simulations-complete.png)
 
-## But How?
+2. Sending notices when scheduled tasks have failed.
 
-We have designed two interfaces into jarjar: a shell command and a Python Module.
+![](docs/img/backups-failed.png)
 
-# The Shell Command
+3. Sending out daily positive vibes.
 
-The `sh/` directory contains a shell command `jarjar` and a configuration file `.jarjar`.
+![](docs/img/positive-vibes.png)
 
-Fill the configuration file out with useful defaults. Critically, you'll want to paste in your Slack webhook so that jarjar knows where to send the message. Then put the configuration file in your home directory (`~/`), that's where jarjar will look for it. Don't worry, you can override those defaults later. Here's a sample `.jarjar`:
+## Quickstart
 
-```sh
-channel="@my_username" # or "#general" 
-message="Hi! Meesa Jar Jar Binks."
-webhook="your-webhook-here"
+[Installation](docs/install.md) is simple!
+
+```shell
+pip install jarjar
 ```
 
-Then, add the `jarjar` _script_ [to your path](https://stackoverflow.com/questions/20054538/add-a-bash-script-to-path). After that, you can use it like so:
+My guess is that you'll want to create jarjar's config file, `~/.jarjar`. This tells jarjar what you'd like to use as a default for your slack team's webhook, the channel to post to, and the message it sends. Don't worry, you can over-ride these anytime.
 
-```sh
-# echo the default message to the default channel
-jarjar -e
+Edit this snippet and add it to `~/.jarjar`:
 
-# echo a message to the #general channel
-jarjar -e -u "#general" -m "Hi, everyone!!"
-
-# Send yourself a notification when a script is completed
-jarjar -u @username -m "Your job is finished!" python my-script.py
-jarjar ./my-script.sh
-
-# send a message to the non-default slack team
-jarjar -e -u @username -m "Hi!" -w "their-webhook-url"
+```shell
+channel='@username'
+message='Custom message'
+webhook='https://hooks.slack.com/services/your/teams/webhook'
 ```
 
-## Modifiers
+If you don't know your team's webhook, you might have to [make one](https://api.slack.com/incoming-webhooks)
 
-| Modifier | Description | 
-|   ---    |     ---     |
-|   `-e`   | Echo the message. If this flag is not included, jarjar waits until a provided process is completed to send the message. By default (without the `-e` flag), jarjar launches a screen with your script (which terminates when your script ends). You can always resume a screen launched by jarjar by finding the appropriate PID: `screen -ls` and `screen -r PID`. |
-|   `-r`   | Attaches screen created by jarjar (when `-e` is not used) |
-|   `-m`   | Message to be sent |
-|   `-u`   | Username (or channel). Usernames must begin with `@`, channels with `#`. |
-|   `-w`   | Webhook for the Slack team. |
+### Python API
 
-# The Python Module
-
-This module implements jarjar's functionality more fluidly within Python scripts. Importing the jarjar module provides a simple class, which can be used to send messages like the shell command.
-
-Installation is simple:
-
-1. `pip install jarjar`
-2. _Optional_: create a `~/.jarjar` file with some defaults (this is shared with the shell command).
-
-```sh
-channel="@my_username" # or "#general" 
-message="Hi! Meesa Jar Jar Binks."
-webhook="your-webhook-here"
-```
-
-
-Then, you're good to go! You can use it as follows:
+Use the jarjar python api like:
 
 ```python
 from jarjar import jarjar
 
-# initialize with defaults from .jarjar
-jj = jarjar()
-
-# initialize with custom defaults
-jj = jarjar(channel='#channel', webhook='slack-webhook-url') 
-
-# initialization is not picky -- provide one or both arguments
-jj = jarjar(webhook = 'slack-webhook-url')
+# initialize a jarjar object
+jj = jarjar() # defaults from .jarjar
+jj = jarjar(channel='#channel', webhook='slack-webhook-url')
+jj = jarjar(webhook='slack-webhook-url')
 
 # send a text message
-jj.text('Hi!') 
-
-# send a message to multiple channels or users
-jj.text('Hi!', channel=["@jeffzemla","#channel"])
+jj.text('Hi!')
+jj.text('Hi!', channel=["@jeffzemla", "#channel"])
 
 # send an attachment
-jj.attach(dict(status='it\'s all good')) 
-
-# send both
-jj.post(text='Hi', attach=dict(status='it\'s all good'))
-
-# override defaults after initializing
-jj.attach(dict(status='it\'s all good'), channel = '@jeffzemla')
-jj.text('Hi!', channel = '@nolan', webhook = 'another-webhook')
+jj.attach({'meesa': 'jarjar binks'}), text='Hello!')
 ```
 
-## Methods
+### Command Line Tool
 
-### `text`
+We also made a [command line tool](docs/clt.md) for use outside of python scripts. The command line tool adds functionality to execute processes and send messages when they are complete.
 
-> `jj.text(text, **kwargs)`
+```shell
+jarjar sleep 1 -m 'Meesa took a nap!'
+```
 
-Send a text message, specified by a string, `text`. User may optionally supply the channel and webhook in the `kwargs`.
+And then in your slack team:
 
-### `attach`
+![](docs/img/nap.png)
 
-> `jj.attach(attach, **kwargs)`
+Custom attachments are not supported in the CLT at this time, but everything else is:
 
-Send attachments, specified by values in a dict, `attach`. User may optionally supply the channel and webhook in the `kwargs`.
+```sh
+jarjar -m 'Meesa jarjar binks!'
+jarjar -m 'Hi, everyone!!' --webhook '<your-url>' -c '#general'
+```
 
-### `post`
+## Documentation
 
-> `jj.post(text=None, attach=None, channel=None, webhook=None)`
+We're on [Read The Docs](http://jarjar.readthedocs.io/en/latest/)!
 
-The generic post method. `jj.text(...)` and `jj.attach(...)` are simply convenience functions wrapped around this method. User may supply text and/or attachments, and may override the default channel and webhook url.
+## Having Trouble? Or a feature request?
 
-
-# How to configure a Slack Webhook
-
-You'll need to configure [Incoming Webhooks](https://api.slack.com/incoming-webhooks) for your Slack team. You need to specify a default channel (which jarjar overrides), and Slack will give you a webhook url. That's it! 
-
-When you're setting things up, you can also specify a custom name and custom icon. We named our webhook robot `jar-jar`, and we used [this icon](http://i.imgur.com/hTHrg6i.png), so messages look like this:
-
-![](http://i.imgur.com/g9RG16j.png)
-
+We are terrible developers and you'll probably run into all sorts of problems. Don't be shy, [file an issue on github](https://github.com/AusterweilLab/jarjar/issues/new)!
