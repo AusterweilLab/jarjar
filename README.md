@@ -2,7 +2,7 @@
 
 Jarjar is a python utility that makes it easy to send slack notifications to your teams. You can import it as a python module or use our command line tool.
 
-[![Documentation Status](https://readthedocs.org/projects/jarjar/badge/?version=latest)](https://jarjar.readthedocs.io/en/latest/?badge=latest) [![PyPI version](https://badge.fury.io/py/jarjar.svg)](https://badge.fury.io/py/jarjar)
+[![Documentation Status](https://readthedocs.org/projects/jarjar/badge/?version=v3.0)](https://readthedocs.org/projects/jarjar/badge/?version=v3.0) [![PyPI version](https://badge.fury.io/py/jarjar.svg)](https://badge.fury.io/py/jarjar)
 
 
 ## What can jarjar do for me?
