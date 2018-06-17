@@ -10,7 +10,7 @@ import warnings
 import copy
 
 
-class jarjar():
+class jarjar(object):
     """A jarjar slack messenger.
 
     This is largely a wrapper around functionality in ``requests.post()`` with
@@ -165,7 +165,7 @@ class jarjar():
             return self._final_default_message
 
         # check unexpected args
-        for k in kwargs.keys():
+        for k, _ in kwargs.items():
             if k in self._expected_kwargs:
                 continue
             warnings.warn('Recieved unexpected kwarg: `%s`.' % k)
