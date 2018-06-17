@@ -29,6 +29,12 @@ Jarjar was developed at the [Austerweil Lab at UW-Madison](http://alab.psych.wis
 pip install jarjar
 ```
 
+For the bleeding edge:
+
+```shell
+pip install git+https://github.com/AusterweilLab/jarjar.git
+```
+
 My guess is that you'll want to create jarjar's config file, `~/.jarjar`. This tells jarjar what you'd like to use as a default for your slack team's webhook, the channel to post to, and the message it sends. Don't worry, you can over-ride these anytime.
 
 Edit this snippet and add it to `~/.jarjar`:
