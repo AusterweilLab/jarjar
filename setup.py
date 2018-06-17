@@ -14,11 +14,17 @@ if mo:
 else:
     raise RuntimeError("Unable to find version string in %s." % (VERSIONFILE,))
 
+long_description = '\
+Jarjar is a python utility that makes it easy to send slack notifications \
+to your teams. You can import it as a python module or use our command \
+line tool.'
+
 # install jarjar
 setup(
     name='jarjar',
     version=verstr,
-    description='Programatically send messages to your slack team',
+    description='Use python to send messages to your slack team',
+    long_description=long_description,
     url='https://github.com/AusterweilLab/jarjar',
     author='The Austerweil Lab at UW-Madison',
     author_email='austerweil.lab@gmail.com',
