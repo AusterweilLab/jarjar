@@ -82,6 +82,14 @@ PARSER.add_argument(
 )
 
 PARSER.add_argument(
+    "--force-exit",
+    dest='force_exit',
+    help="Exit the screen even if the process did not successfuly exit.",
+    default=False,
+    action='store_true'
+)
+
+PARSER.add_argument(
     "-e",
     dest='echo',
     help=argparse.SUPPRESS,
@@ -114,12 +122,16 @@ if not ARGS.program:
     if ARGS.nojarjar:
         warnings.warn('You called `--no-jarjar` but there is no task to run.')
 
+    if ARGS.force_exit:
+        warnings.warn('You called `--force-exit` but there is no task to run.')
+
 # check screen is availible
 if ARGS.program and os.system('which screen') != 0:
     raise RuntimeError(
         'Jarjar cannot find `screen`! ' +
         'Make sure it is on your path and try again.'
     )
+
 
 def _append_to_name(name):
     """Append an `__{integer}` to a name or add to it."""
@@ -191,6 +203,7 @@ def main():
     PROGRAM = ' '.join(ARGS.program)
     ATTACH = ARGS.attach
     NOEXIT = ARGS.noexit
+    FORCE_EXIT = ARGS.force_exit
     if ARGS.screen_name is None:
         if PROGRAM:
             SCREEN_NAME = _make_screen_name(ARGS.program)
@@ -287,10 +300,15 @@ def main():
     if not ARGS.nojarjar:
         screen.send_commands(NOTIFY)
 
-    # send exit command if not no-exit or attach
-    if not (NOEXIT or ATTACH):
-        # some versions of screen require the variable to be escaped; this conditional will test
-        # whether variables need to be escaped and then exit if $JARJAR_EXIT equals 0
+    # send exit command if
+    # (A) User force exited, or
+    # (B) Task was successful and not no-exit or attach
+    if FORCE_EXIT:
+        screen.send_commands('exit;')
+    elif not (NOEXIT or ATTACH):
+        # some versions of screen require the variable to be escaped;
+        # this conditional will test whether variables need to be escaped
+        # and then exit if $JARJAR_EXIT equals 0
         screen.send_commands(
             '''if [ -z $JARJAR_EXIT ];
                 then if [ \$JARJAR_EXIT -eq 0 ] ;
