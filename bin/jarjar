@@ -126,7 +126,7 @@ if not ARGS.program:
         warnings.warn('You called `--force-exit` but there is no task to run.')
 
 # check screen is availible
-if ARGS.program and os.system('which screen') != 0:
+if ARGS.program and os.system('which screen > %s 2>&1' % os.devnull) != 0:
     raise RuntimeError(
         'Jarjar cannot find `screen`! ' +
         'Make sure it is on your path and try again.'
