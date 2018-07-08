@@ -1,5 +1,3 @@
-"""Class file for jarjar
-"""
 
 import requests
 import json
@@ -8,6 +6,44 @@ import os
 import imp
 import warnings
 import copy
+
+_EXPECTED_CONFIG = ['channel', 'webhook', 'message']
+_NO_MESSAGE_WARN = (
+    '''
+    Slow down cowboy! You didn't provide a message and there is
+    no default in your .jarjar, so I'll just wing it.
+    '''
+    .strip()
+    .replace('\n', ' ')
+    .replace('\t', ' ')
+    .replace('  ', ' ')
+)
+
+
+def read_config_file(filename):
+    """Find expected fields in a config file.
+
+    Return nones if it does not exist, otherwise, load the file as a module
+    and getattr for each.
+    """
+
+    # red recursively
+    if isinstance(filename, (list, tuple)):
+        return [read_config_file(i) for i in filename]
+
+    # Nones if the file does not exist
+    if not os.path.exists(filename):
+        return dict((i, None) for i in _EXPECTED_CONFIG)
+
+    # laod it up, remove compiled file if its there
+    cfg = imp.load_source('_tmp', filename)
+    try:
+        os.remove(filename + 'c', )
+    except OSError:
+        pass
+
+    # grab expected values
+    return dict((i, getattr(cfg, i, None)) for i in _EXPECTED_CONFIG)
 
 
 class jarjar(object):
@@ -21,8 +57,12 @@ class jarjar(object):
 
     1. Any argument provided to :func:`~jarjar.jarjar.text` or
        :func:`~jarjar.jarjar.attach` supersedes all defaults.
-    2. Defaults can be provided at initialization or via a config file
-       (``~/.jarjar``), which looks like:
+    2. Any argument provided to this class at initialization.
+    3. Defaults within a config file at a user-specified path (``config='...').
+    4. Defaults within a config file ``.jarjar``, within the working directory.
+    5. Defaults within ``.jarjar``, located in the user's home directory.
+
+    The config files (for numbers 3-5) look like:
 
     .. code::
 
@@ -59,27 +99,45 @@ class jarjar(object):
 
     """
 
-    _expected_kwargs = ['message', 'attach', 'channel', 'webhook']
-    _final_default_message = 'Meesa Jarjar Binks!'
-    _no_message_warn = (
-        '''
-        Slow down cowboy! You didn't provide a message and there is
-        no default in your .jarjar, so I'll just wing it.
-        '''
-        .strip()
-        .replace('\n', ' ')
-        .replace('\t', ' ')
-        .replace('  ', ' ')
-    )
-
     # defaults; exposed for the user
+    _final_default_message = 'Meesa Jarjar Binks!'
     headers = {'Content-Type': 'application/json'}
 
-    def __init__(self, message=None, channel=None, webhook=None):
+    def __init__(self, config=None, **defaults):
 
-        # read config file, set defaults
-        self._read_config()
-        self._set_defaults(channel=channel, webhook=webhook, message=message)
+        # check unexpected args
+        for k, _ in defaults.items():
+            if k in _EXPECTED_CONFIG:
+                continue
+            warnings.warn('Recieved unexpected kwarg: `%s`.' % k)
+
+        # paths listed in order of precedent
+        expected_config_files = [
+            os.path.join(os.getcwd(), '.jarjar'),
+            os.path.join(os.path.expanduser('~'), '.jarjar'),
+        ]
+
+        # add user path if needed. insert to the _front_
+        if config is not None:
+            if isinstance(config, list):
+                expected_config_files = config + expected_config_files
+            else:
+                expected_config_files.insert(0, config)
+
+        # read configs and set defaults
+        configs = read_config_file(expected_config_files)
+
+        # add inline defaults to the front
+        configs.insert(0, defaults)
+        for i in configs:
+            print(i)
+        # set attrs
+        for val in _EXPECTED_CONFIG:
+            setattr(
+                self,
+                'default_%s' % val,
+                next((i[val] for i in configs if i.get(val, None)), None)
+            )
 
         # default attach and payload args
         self.attachment_args = dict(
@@ -88,48 +146,6 @@ class jarjar(object):
             fields=[]
         )
         self.payload_args = dict()
-
-    def _set_defaults(self, channel=None, webhook=None, message=None):
-        """Set the default channel and webhook and message."""
-        # set default channel
-        if channel in (None, ''):
-            self.default_channel = self.cfg_channel
-        else:
-            self.default_channel = channel
-
-        if webhook in (None, ''):
-            self.default_webhook = self.cfg_webhook
-        else:
-            self.default_webhook = webhook
-
-        if message in (None, ''):
-            self.default_message = self.cfg_message
-        else:
-            self.default_message = message
-
-    def _read_config(self):
-        """Read the .jarjar file for defaults."""
-        # get .jarjar path
-        filename = os.path.join(os.path.expanduser('~'), '.jarjar')
-
-        # make empty .jarjar if needed
-        if not os.path.exists(filename):
-            open(filename, 'a').close()
-
-        # load config
-        cfg = imp.load_source('_jarjar', filename)
-
-        # assign variables
-        for field in ['channel', 'webhook', 'message']:
-
-            # read from config, or set to none
-            if hasattr(cfg, field):
-                data = getattr(cfg, field)
-            else:
-                data = None
-
-            # set value
-            setattr(self, 'cfg_%s' % field, data)
 
     def _infer_kwargs(self, **kwargs):
         """Infer kwargs for later method calls."""
@@ -161,12 +177,12 @@ class jarjar(object):
                 return None
 
             # otherwise use a super-default and warn the user.
-            warnings.warn(self._no_message_warn)
+            warnings.warn(_NO_MESSAGE_WARN)
             return self._final_default_message
 
         # check unexpected args
         for k, _ in kwargs.items():
-            if k in self._expected_kwargs:
+            if k in _EXPECTED_CONFIG:
                 continue
             warnings.warn('Recieved unexpected kwarg: `%s`.' % k)
 
