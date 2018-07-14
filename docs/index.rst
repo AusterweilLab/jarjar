@@ -57,7 +57,7 @@ Edit this snippet and add it to ``~/.jarjar``:
    webhook='https://hooks.slack.com/services/your/teams/webhook'
 
 If you don't know your team's webhook, you might have to
-`make one <https://api.slack.com/incoming-webhooks>`_.
+`make one <https://my.slack.com/apps/A0F7XDUAZ-incoming-webhooks>`_.
 
 Python API
 ----------
