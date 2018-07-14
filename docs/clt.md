@@ -69,8 +69,9 @@ jarjar --help
 - `-m`, `--message`. Specify message to send. This best done in single-quotes (`jarjar -m 'hi'`) but jarjar rolls with the punches (like `jarjar -m hi`).
 - `-w`, `--webhook`. Specify webhook to post to.
 - `-c`, `--channel`. Specify channel to post to. Unlike in the python module, only one channel can be supplied at a time. Since `#` is interpreted as a shell comment, you'll want to put this in single quotes (`jarjar -c '#general'`).
-- `-a`, `-r`, `--attach`. Attach to the screen once the program has started running. If you didn't provide a program jarjar will think you are weird.
-- `-S`, `--screen_name`. Specify the name of the screen created for the program. If you didn't provide a program jarjar will think you are weird.
-- `--no-exit`. Don't exit the screen even if the program exited successfully. If you didn't provide a program jarjar will think you are weird.
-- `--no-jarjar`. Run a program but don't send a slack message about it. In this case jarjar is just acting as a screen generator. If you didn't provide a program jarjar will think you are weird.
+- `-a`, `-r`, `--attach`. Attach to the screen once the program has started running.
+- `-S`, `--screen_name`. Specify the name of the screen created for the program.
+- `--no-exit`. Don't exit the screen even if the program exited successfully.
+- `--force-exit`. Exit the screen regardless of your task's exit status.
+- `--no-jarjar`. Run a program but don't send a slack message about it. In this case jarjar is just acting as a screen generator.
 
