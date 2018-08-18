@@ -447,6 +447,10 @@ class jarjar(object):
                 self.attachment_args['color'] = "danger"
                 attach['Exception'] = '```%s```' % exception_message
 
+            # delete attach in the kwargs
+            if 'attach' in jj_kwargs:
+                del jj_kwargs['attach']
+
             # send the message
             self.attach(attach, **jj_kwargs)
 

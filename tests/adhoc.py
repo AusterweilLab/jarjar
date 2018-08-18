@@ -3,7 +3,7 @@ from jarjar import jarjar
 
 jj = jarjar()
 
-@jj.decorate(message='Hi!', channel='sleepy-gary-says')
+@jj.decorate
 def f(a=1):
     time.sleep(a)
     kfkdfsk
