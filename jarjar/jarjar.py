@@ -1,13 +1,15 @@
-"""Class file for jarjar
-"""
+"""Class file for jarjar."""
 
-import requests
-import json
-import time
-import os
-import imp
-import warnings
 import copy
+import datetime
+import functools
+import imp
+import json
+import os
+import requests
+import time
+import traceback
+import warnings
 
 
 class jarjar(object):
@@ -47,6 +49,8 @@ class jarjar(object):
         Set jarjar's default channel.
     set_message(message)
         Set jarjar's default message.
+    decorate(func=None, **jj_kwargs)
+        Decorate a function to send a message after execution.
 
     Parameters
     ----------
@@ -394,3 +398,61 @@ class jarjar(object):
 
         """
         self.default_message = message
+
+    def decorate(self, func=None, **jj_kwargs):
+        """Decorate a function to send a message after execution.
+
+        This is a simple decorator to compute elapsed time and catch
+        exceptions within a function execution. You can set the usual
+        jarjar kwargs within the decorator. Decorate your function like:
+
+        .. code::
+
+            jj = jarjar(channel='...')
+            @jj.decorate
+            def simulate(x):
+                # ...
+
+            @jj.decorate(channel='...')
+            def simulate(x):
+                # ...
+        """
+        if func is None:
+            return functools.partial(self.decorate, **jj_kwargs)
+
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+
+            # start timer
+            t1 = datetime.datetime.now()
+
+            # wrap execution in a try/except to catch
+            # exception messages
+            try:
+                res = func(*args, **kwargs)
+                success = True
+            except Exception as e:
+                exception = e  # raise this later
+                exception_message = traceback.format_exc()
+                success = False
+
+            # end timer, set up attachments
+            t2 = datetime.datetime.now()
+            attach = jj_kwargs.get('attach', {})
+            attach['Time Elapsed'] = str(t2 - t1).split('.')[0]
+
+            # add exception to the payload if needed
+            if not success:
+                original_color = self.attachment_args['color']
+                self.attachment_args['color'] = "danger"
+                attach['Exception'] = '```%s```' % exception_message
+
+            # send the message
+            self.attach(attach, **jj_kwargs)
+
+            # if not success, reset the attachment_args and raise
+            if not success:
+                self.attachment_args['color'] = original_color
+                raise exception
+            return res
+        return wrapper

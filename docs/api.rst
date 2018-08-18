@@ -6,4 +6,4 @@ API Documentation
 .. automodule:: jarjar
 
 .. autoclass:: jarjar
-   :members: text, attach, set_webhook, set_channel, set_message
+   :members: text, attach, decorate, set_webhook, set_channel, set_message
