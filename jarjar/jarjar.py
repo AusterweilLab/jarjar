@@ -80,7 +80,7 @@ class jarjar(object):
     headers = {'Content-Type': 'application/json'}
 
     def __init__(self, message=None, channel=None, webhook=None):
-
+        """Init the object."""
         # read config file, set defaults
         self._read_config()
         self._set_defaults(channel=channel, webhook=webhook, message=message)
@@ -413,9 +413,15 @@ class jarjar(object):
             def simulate(x):
                 # ...
 
-            @jj.decorate(channel='...')
+            @jj.decorate(message='...')
             def simulate(x):
                 # ...
+
+        Parameters
+        ----------
+        **jj_kwargs : keyword arguments
+            Arguments passed to :func:`~jarjar.jarjar.attach`.
+
         """
         if func is None:
             return functools.partial(self.decorate, **jj_kwargs)
@@ -460,3 +466,50 @@ class jarjar(object):
                 raise exception
             return res
         return wrapper
+
+    def register_magic(self, name='jarjar', quiet=False, **kwargs):
+        """Register a jarjar Jupyter cell magic.
+
+        This magic sends a message whenever its cell executes. The message
+        includes attachments for elapsed time and shows the exception trace if
+        there was one.
+
+        Use it like:
+
+        .. code::
+
+            jj = jarjar(channel='...')
+            jj.register_magic(message='Cell executed!')
+
+            # %% --- new cell ---
+            %%jarjar
+            # ... do some stuff! ...
+
+        Parameters
+        ----------
+        name : str
+            Name of the magic to register. Default: 'jarjar'.
+
+        quiet : boolean
+            Flag indicating whether to print the name of the magic.
+
+        **kwargs : keyword arguments
+            Arguments passed to :func:`~jarjar.jarjar.attach`.
+
+        """
+        # get ipython stuff
+        from IPython.core.magic import register_cell_magic
+        from IPython import get_ipython
+        ip = get_ipython()
+
+        # register the function
+        @register_cell_magic(name)
+        def magic(line, cell):
+            @self.decorate(**kwargs)
+            def f():
+                res = ip.run_cell(cell)
+                res.raise_error()
+            f()
+
+        if not quiet:
+            print('Registered magic %%{0}'.format(name))
