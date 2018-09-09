@@ -8,7 +8,9 @@ dist/
 build/
 jarjar.egg-info/
 venv*/
+.venv*/
 install.log
 jarjar-shell
 build/
 .ipynb_checkpoints
+.jarjar

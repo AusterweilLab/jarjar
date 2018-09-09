@@ -64,7 +64,7 @@ jj.text('Hi!')
 jj.text('Hi!', channel=["@jeffzemla", "#channel"])
 
 # send an attachment
-jj.attach({'meesa': 'jarjar binks'}), text='Hello!')
+jj.attach({'meesa': 'jarjar binks'}, message='Hello!')
 ```
 
 ### Command Line Tool

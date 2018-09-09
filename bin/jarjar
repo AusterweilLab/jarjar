@@ -189,6 +189,31 @@ def _make_screen_name(command):
     )[:10]
 
 
+def _screen_if_then(variable, value, then):
+    """Get a string if-then bash statement to send to a screen.
+
+    This handles an odd screen version problem that some versions of
+    screen require the variable to be escaped.
+
+    This conditional will test whether variables need to be escaped and
+    run the resulting code if the equality is met.
+    """
+    return '''
+    if [ -z ${variable} ];
+        then if [ "\${variable}" -eq "{value}" ] ;
+            then {then};
+            fi;
+        else if [ "${variable}" -eq "{value}" ] ;
+            then {then};
+            fi;
+        fi;
+    '''.format(
+        variable=variable,
+        value=value,
+        then=then,
+    )
+
+
 def main():
 
     # output version if requested
@@ -228,25 +253,39 @@ def main():
     if not PROGRAM:
 
         # get env variables
-        UNIX_START = os.environ.get('JJ_UNIX_START')
-        UNIX_END = os.environ.get('JJ_UNIX_END')
-        EXIT = os.environ.get('JARJAR_EXIT')
+        ENV_UNIX_START = os.environ.get('JJ_UNIX_START')
+        ENV_UNIX_END = os.environ.get('JJ_UNIX_END')
+        ENV_EXIT = os.environ.get('JARJAR_EXIT')
+        ENV_SCREEN_NAME = os.environ.get('JJ_SCREEN_NAME')
+        ENV_SCREEN_EXIT = os.environ.get('JJ_SCREEN_EXIT', '0')
+
         if not MESSAGE:
             MESSAGE = None
 
         # if vars are defined and there is no message, use them as the default
-        if None not in (UNIX_START, UNIX_END, EXIT):
-            SECONDS = int(UNIX_END) - int(UNIX_START)
+        if None not in (ENV_UNIX_START, ENV_UNIX_END, ENV_EXIT):
+            SECONDS = int(ENV_UNIX_END) - int(ENV_UNIX_START)
             ATTACHMENT = {
-                'Exit Status': EXIT,
+                'Exit Status': ENV_EXIT,
                 'Time Elapsed': _fmt_time(SECONDS)
             }
         else:
             ATTACHMENT = None
 
+        # add screen info to attachment if we have that info
+        if None not in (ATTACHMENT, ENV_SCREEN_NAME, ENV_SCREEN_EXIT):
+            if ENV_SCREEN_EXIT == '1':
+                SCREEN_STATUS = 'Closed'
+            else:
+                SCREEN_STATUS = 'Still open. `screen -r %s`' % ENV_SCREEN_NAME
+
+            ATTACHMENT['Screen Name'] = '''`%s` (%s)''' % (
+                ENV_SCREEN_NAME, SCREEN_STATUS
+            )
+
         # send the notification
         jj = jarjar(channel=CHANNEL, webhook=WEBHOOK)
-        if EXIT is not None and int(EXIT) > 0:
+        if ENV_EXIT is not None and int(ENV_EXIT) > 0:
             jj.attachment_args['color'] = "danger"
 
         RESPONSE = jj.text(MESSAGE, attach=ATTACHMENT)
@@ -286,8 +325,9 @@ def main():
     # hide from history
     screen.send_commands('unset HISTFILE;')
 
-    # capture start time
+    # capture start time, screen name
     screen.send_commands('''export JJ_UNIX_START=$(date -u +%s);''')
+    screen.send_commands('''export JJ_SCREEN_NAME='%s';''' % SCREEN_NAME)
 
     # run command
     screen.send_commands(PROGRAM)
@@ -296,33 +336,28 @@ def main():
     screen.send_commands('''export JARJAR_EXIT=$?;''')
     screen.send_commands('''export JJ_UNIX_END=$(date -u +%s);''')
 
+    # write screen exit flag if
+    # (A) User force exited, or
+    # (B) Task was successful and not no-exit or attach
+    if FORCE_EXIT:
+        screen.send_commands('''export JJ_SCREEN_EXIT=1;''')
+    elif not (NOEXIT or ATTACH):
+        screen.send_commands(
+            _screen_if_then('JARJAR_EXIT', 0, 'export JJ_SCREEN_EXIT=1')
+        )
+
     # send notification
     if not ARGS.nojarjar:
         screen.send_commands(NOTIFY)
 
-    # send exit command if
-    # (A) User force exited, or
-    # (B) Task was successful and not no-exit or attach
-    if FORCE_EXIT:
-        screen.send_commands('exit;')
-    elif not (NOEXIT or ATTACH):
-        # some versions of screen require the variable to be escaped;
-        # this conditional will test whether variables need to be escaped
-        # and then exit if $JARJAR_EXIT equals 0
-        screen.send_commands(
-            '''if [ -z $JARJAR_EXIT ];
-                then if [ \$JARJAR_EXIT -eq 0 ] ;
-                    then exit;
-                    fi;
-                else if [ $JARJAR_EXIT -eq 0 ] ;
-                    then exit;
-                    fi;
-                fi;'''
-        )
+    # exit if command was written
+    screen.send_commands(
+        _screen_if_then('JJ_SCREEN_EXIT', 1, 'exit')
+    )
 
-        # attach if needed
-        if ATTACH:
-            os.system('screen -r {}'.format(SCREEN_NAME))
+    # attach if needed
+    if ATTACH:
+        os.system('screen -r {}'.format(SCREEN_NAME))
 
     sys.exit(0)
 
