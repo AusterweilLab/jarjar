@@ -58,7 +58,8 @@ class jarjar(object):
     1. Any argument provided to :func:`~jarjar.jarjar.text` or
        :func:`~jarjar.jarjar.attach` supersedes all defaults.
     2. Any argument provided to this class at initialization.
-    3. Defaults within a config file at a user-specified path (``config='...').
+    3. Defaults within a config file at a user-specified path
+       (``config='...'``).
     4. Defaults within a config file ``.jarjar``, within the working directory.
     5. Defaults within ``.jarjar``, located in the user's home directory.
 
@@ -70,10 +71,12 @@ class jarjar(object):
         message="Custom message"
         webhook="https://hooks.slack.com/services/your/teams/webhook"
 
-    3. Arguments provided  at initialization supersede those in ``~/.jarjar``.
-       If the channel or webhook arguments are never provided, an error is
-       raised. If the channel and webhook are provided but not a message or
-       attachment, jarjar will make something up.
+    If the channel or webhook arguments are never provided, an error is
+    raised. If the channel and webhook are provided but not a message or
+    attachment, jarjar will make something up.
+
+    If a value is found in multiple places, the value from the highest priority
+    location is used.
 
     Methods
     -------
@@ -90,6 +93,9 @@ class jarjar(object):
 
     Parameters
     ----------
+    config : str, list
+        Optional. Path(s) to jarjar configuration file(s). If a list,
+        configs should be in descending order of priority.
     message : str
         Optional. Default message to send.
     channel : str,  list
@@ -129,8 +135,7 @@ class jarjar(object):
 
         # add inline defaults to the front
         configs.insert(0, defaults)
-        for i in configs:
-            print(i)
+
         # set attrs
         for val in _EXPECTED_CONFIG:
             setattr(
