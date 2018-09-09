@@ -19,7 +19,7 @@ virtualenv --python=$python_version --no-site-packages venv;
 source venv/bin/activate;
 
 echo '\n------ INSTALLING JARJAR ------\n'
-pip install ../. --force-reinstall;
+pip install ../. --force-reinstall --upgrade;
 
 echo '\n------ USAGE TESTS ------\n'
 
