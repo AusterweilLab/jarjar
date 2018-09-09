@@ -1,13 +1,18 @@
+"""Class file for jarjar."""
 
-import requests
-import json
-import time
-import os
-import imp
-import warnings
 import copy
+import datetime
+import functools
+import imp
+import json
+import os
+import requests
+import time
+import traceback
+import warnings
 
 _EXPECTED_CONFIG = ['channel', 'webhook', 'message']
+_EXPECTED_KWARGS = _EXPECTED_CONFIG + ['attach']
 _NO_MESSAGE_WARN = (
     '''
     Slow down cowboy! You didn't provide a message and there is
@@ -26,7 +31,6 @@ def read_config_file(filename):
     Return nones if it does not exist, otherwise, load the file as a module
     and getattr for each.
     """
-
     # red recursively
     if isinstance(filename, (list, tuple)):
         return [read_config_file(i) for i in filename]
@@ -90,6 +94,10 @@ class jarjar(object):
         Set jarjar's default channel.
     set_message(message)
         Set jarjar's default message.
+    decorate(func=None, **jj_kwargs)
+        Decorate a function to send a message after execution.
+    register_magic(name='jarjar', quiet=False, **kwargs)
+        Register a magic for Jupyter notebooks.
 
     Parameters
     ----------
@@ -110,12 +118,13 @@ class jarjar(object):
     headers = {'Content-Type': 'application/json'}
 
     def __init__(self, config=None, **defaults):
-
+        """Init the object."""
         # check unexpected args
-        for k, _ in defaults.items():
+        print(defaults)
+        for k in defaults.keys():
             if k in _EXPECTED_CONFIG:
                 continue
-            warnings.warn('Recieved unexpected kwarg: `%s`.' % k)
+            warnings.warn('Received unexpected kwarg: `%s`.' % k)
 
         # paths listed in order of precedent
         expected_config_files = [
@@ -152,6 +161,48 @@ class jarjar(object):
         )
         self.payload_args = dict()
 
+    def _set_defaults(self, channel=None, webhook=None, message=None):
+        """Set the default channel and webhook and message."""
+        # set default channel
+        if channel in (None, ''):
+            self.default_channel = self.cfg_channel
+        else:
+            self.default_channel = channel
+
+        if webhook in (None, ''):
+            self.default_webhook = self.cfg_webhook
+        else:
+            self.default_webhook = webhook
+
+        if message in (None, ''):
+            self.default_message = self.cfg_message
+        else:
+            self.default_message = message
+
+    def _read_config(self):
+        """Read the .jarjar file for defaults."""
+        # get .jarjar path
+        filename = os.path.join(os.path.expanduser('~'), '.jarjar')
+
+        # make empty .jarjar if needed
+        if not os.path.exists(filename):
+            open(filename, 'a').close()
+
+        # load config
+        cfg = imp.load_source('_jarjar', filename)
+
+        # assign variables
+        for field in ['channel', 'webhook', 'message']:
+
+            # read from config, or set to none
+            if hasattr(cfg, field):
+                data = getattr(cfg, field)
+            else:
+                data = None
+
+            # set value
+            setattr(self, 'cfg_%s' % field, data)
+
     def _infer_kwargs(self, **kwargs):
         """Infer kwargs for later method calls."""
         def _get(arg):
@@ -187,7 +238,7 @@ class jarjar(object):
 
         # check unexpected args
         for k, _ in kwargs.items():
-            if k in _EXPECTED_CONFIG:
+            if k in _EXPECTED_KWARGS:
                 continue
             warnings.warn('Recieved unexpected kwarg: `%s`.' % k)
 
@@ -415,3 +466,118 @@ class jarjar(object):
 
         """
         self.default_message = message
+
+    def decorate(self, func=None, **jj_kwargs):
+        """Decorate a function to send a message after execution.
+
+        This is a simple decorator to compute elapsed time and catch
+        exceptions within a function execution. You can set the usual
+        jarjar kwargs within the decorator. Decorate your function like:
+
+        .. code::
+
+            jj = jarjar(channel='...')
+            @jj.decorate
+            def simulate(x):
+                # ...
+
+            @jj.decorate(message='...')
+            def simulate(x):
+                # ...
+
+        Parameters
+        ----------
+        **jj_kwargs : keyword arguments
+            Arguments passed to :func:`~jarjar.jarjar.attach`.
+
+        """
+        if func is None:
+            return functools.partial(self.decorate, **jj_kwargs)
+
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+
+            # start timer
+            t1 = datetime.datetime.now()
+
+            # wrap execution in a try/except to catch
+            # exception messages
+            try:
+                res = func(*args, **kwargs)
+                success = True
+            except Exception as e:
+                exception = e  # raise this later
+                exception_message = traceback.format_exc()
+                success = False
+
+            # end timer, set up attachments
+            t2 = datetime.datetime.now()
+            attach = jj_kwargs.get('attach', {})
+            attach['Time Elapsed'] = str(t2 - t1).split('.')[0]
+
+            # add exception to the payload if needed
+            if not success:
+                original_color = self.attachment_args['color']
+                self.attachment_args['color'] = "danger"
+                attach['Exception'] = '```%s```' % exception_message
+
+            # delete attach in the kwargs
+            if 'attach' in jj_kwargs:
+                del jj_kwargs['attach']
+
+            # send the message
+            self.attach(attach, **jj_kwargs)
+
+            # if not success, reset the attachment_args and raise
+            if not success:
+                self.attachment_args['color'] = original_color
+                raise exception
+            return res
+        return wrapper
+
+    def register_magic(self, name='jarjar', quiet=False, **kwargs):
+        """Register a jarjar Jupyter cell magic.
+
+        This magic sends a message whenever its cell executes. The message
+        includes attachments for elapsed time and shows the exception trace if
+        there was one.
+
+        Use it like:
+
+        .. code::
+
+            jj = jarjar(channel='...')
+            jj.register_magic(message='Cell executed!')
+
+            # %% --- new cell ---
+            %%jarjar
+            # ... do some stuff! ...
+
+        Parameters
+        ----------
+        name : str
+            Name of the magic to register. Default: 'jarjar'.
+
+        quiet : boolean
+            Flag indicating whether to print the name of the magic.
+
+        **kwargs : keyword arguments
+            Arguments passed to :func:`~jarjar.jarjar.attach`.
+
+        """
+        # get ipython stuff
+        from IPython.core.magic import register_cell_magic
+        from IPython import get_ipython
+        ip = get_ipython()
+
+        # register the function
+        @register_cell_magic(name)
+        def magic(line, cell):
+            @self.decorate(**kwargs)
+            def f():
+                res = ip.run_cell(cell)
+                res.raise_error()
+            f()
+
+        if not quiet:
+            print('Registered magic %%{0}'.format(name))
