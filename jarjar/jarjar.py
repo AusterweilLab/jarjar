@@ -51,6 +51,8 @@ class jarjar(object):
         Set jarjar's default message.
     decorate(func=None, **jj_kwargs)
         Decorate a function to send a message after execution.
+    register_magic(name='jarjar', quiet=False, **kwargs)
+        Register a magic for Jupyter notebooks.
 
     Parameters
     ----------
