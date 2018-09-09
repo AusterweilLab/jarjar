@@ -10,17 +10,31 @@ pip install jarjar
 
 ## Config File
 
-You can use jarjar without a config file, but you'll need to tell it your slack webhook and channel each time.
+You can use jarjar without a config file, but you'll need to tell it your slack
+webhook and channel each time.
 
 You don't want to live that way.
 
-Jarjar looks for a special file in your user home `~/.jarjar` for default webhook, channel, and/or message. You can over-ride anything in there pretty much any time you want.
+Jarjar looks to a special config file for a default webhook, channel, and
+message values. You can over-ride anything in the config file any time but its
+nice not to have your webhook in each script, amirite??
+
+The file looks like:
 
 ```sh
 channel='@username'
 message='Custom message'
 webhook='https://hooks.slack.com/services/your/teams/webhook'
 ```
+
+Jarjar looks for values in descending order of priority:
+
+1. Any argument provided to `jarjar().text()` or `jarjar().attach()` at runtime.
+2. Any argument provided to `jarjar()` at initialization.
+3. Defaults within a file at a user-specified path (`config='...'`), provided to
+   `jarjar()` at initialization.
+4. Defaults within a config file ``.jarjar``, in the working directory.
+5. Defaults within ``.jarjar``, located in the user's home directory (`~`).
 
 ## Configuring Slack
 

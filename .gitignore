@@ -12,3 +12,4 @@ venv*/
 install.log
 jarjar-shell
 build/
+.jarjar
