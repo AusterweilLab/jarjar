@@ -44,11 +44,14 @@ Install
 
    pip install jarjar
 
-My guess is that you'll want to create jarjar's config file, ``~/.jarjar``. This tells jarjar
-what you'd like to use as a default for your slack team's webhook, the channel to post to,
-and the message it sends. Don't worry, you can over-ride these anytime.
+My guess is that you'll want to create jarjar's config file, ``.jarjar``.
+This tells jarjar what you'd like to use as a default for your slack team's
+webhook, the channel to post to, and the message it sends. Don't worry, you can
+over-ride these anytime.
 
-Edit this snippet and add it to ``~/.jarjar``:
+Jarjar automatically looks for ``.jarjar`` in the current working directory as
+well as the user home (``~``), so edit this snippet and throw it one of those
+places:
 
 .. code-block:: shell
 
@@ -68,17 +71,15 @@ Use the :doc:`jarjar python api </api>` like:
 
     from jarjar import jarjar
 
-    # initialize a jarjar object
     jj = jarjar() # defaults from .jarjar
-    jj = jarjar(channel='#channel', webhook='slack-webhook-url')
-    jj = jarjar(webhook='slack-webhook-url')
-
-    # send a text message
     jj.text('Hi!')
-    jj.text('Hi!', channel=["@jeffzemla", "#channel"])
 
     # send an attachment
     jj.attach({'meesa': 'jarjar binks'}, message='Hello!')
+
+
+
+Jajrar also supports :doc:`decorator and Jupyter magic workflows </python-workflows>`!
 
 Command Line Tool
 -----------------
@@ -112,3 +113,4 @@ Detailed Documention
    install
    clt
    api
+   python-workflows

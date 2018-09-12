@@ -4,9 +4,9 @@ from jarjar import jarjar
 jj = jarjar()
 
 @jj.decorate
-def f(a=1):
+def fun(a=1):
     time.sleep(a)
-    kfkdfsk
+    int('a')
 
 
-f(3)
+fun(3)

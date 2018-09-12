@@ -35,9 +35,14 @@ For the bleeding edge:
 pip install git+https://github.com/AusterweilLab/jarjar.git
 ```
 
-My guess is that you'll want to create jarjar's config file, `~/.jarjar`. This tells jarjar what you'd like to use as a default for your slack team's webhook, the channel to post to, and the message it sends. Don't worry, you can over-ride these anytime.
+My guess is that you'll want to create jarjar's config file, `.jarjar`. This
+tells jarjar what you'd like to use as a default for your slack team's webhook,
+the channel to post to, and the message it sends. Don't worry, you can over-ride
+these anytime.
 
-Edit this snippet and add it to `~/.jarjar`:
+Jarjar automatically looks for `.jarjar` in the current working directory as
+well as the user home (`~`), so edit this snippet and throw it one of those
+places:
 
 ```shell
 channel='@username'
@@ -54,18 +59,14 @@ Use the jarjar python api like:
 ```python
 from jarjar import jarjar
 
-# initialize a jarjar object
 jj = jarjar() # defaults from .jarjar
-jj = jarjar(channel='#channel', webhook='slack-webhook-url')
-jj = jarjar(webhook='slack-webhook-url')
-
-# send a text message
 jj.text('Hi!')
-jj.text('Hi!', channel=["@jeffzemla", "#channel"])
 
 # send an attachment
 jj.attach({'meesa': 'jarjar binks'}, message='Hello!')
 ```
+
+Jarjar also supports [decorator and Jupyter magic workflows](docs/python-workflows.md)!
 
 ### Command Line Tool
 
@@ -92,4 +93,6 @@ We're on [Read The Docs](http://jarjar.readthedocs.io/en/latest/)!
 
 ## Having Trouble? Or a feature request?
 
-We are terrible developers and you'll probably run into all sorts of problems. Don't be shy, [file an issue on github](https://github.com/AusterweilLab/jarjar/issues/new)!
+We are terrible developers and you'll probably run into all sorts of problems.
+Don't be shy,
+[file an issue on github](https://github.com/AusterweilLab/jarjar/issues/new)!
