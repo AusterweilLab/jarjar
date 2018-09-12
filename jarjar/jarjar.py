@@ -120,7 +120,6 @@ class jarjar(object):
     def __init__(self, config=None, **defaults):
         """Init the object."""
         # check unexpected args
-        print(defaults)
         for k in defaults.keys():
             if k in _EXPECTED_CONFIG:
                 continue
