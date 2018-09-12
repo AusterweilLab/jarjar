@@ -7,7 +7,6 @@ __pycache__/
 *.pyc
 *.sublime-project
 build/
-build/
 dist/
 install.log
 jarjar-shell
