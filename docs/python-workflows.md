@@ -1,6 +1,6 @@
 # Python API Workflows
 
-Jarjar is great for letting you know when come snippet of code has finished
+Jarjar is great for letting you know when a snippet of code has finished
 executing, but configuring things properly can be a little bit of a hassle.
 
 A common workflow involves writing your code and then throwing a jarjar call
@@ -40,7 +40,7 @@ want to run the same process twice, getting a notification each time? What if
 you wanted to include the traceback within the message if there was an
 exception?
 
-You'll end up writing a lot more code just to handle jarjar notifications.
+You can end up writing a lot more code just to handle jarjar notifications.
 Luckily, we wrote that code for you.
 
 ## Jarjar decorator
@@ -69,7 +69,6 @@ cell:
 ```python
 from jarjar import jarjar
 jj = jarjar()
-
 jj.register_magic()
 ```
 
