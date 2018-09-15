@@ -103,9 +103,9 @@ Custom attachments are not supported in the CLT at this time, but everything els
    jarjar -m 'Meesa jarjar binks!'
    jarjar -m 'Hi, everyone!!' --webhook '<your-url>' -c '#general'
 
-********************
-Detailed Documention
-********************
+**********************
+Detailed Documentation
+**********************
 
 .. toctree::
    :maxdepth: 1
