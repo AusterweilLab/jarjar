@@ -14,3 +14,4 @@ jarjar.egg-info/
 test.py
 update-pip.sh
 venv*/
+mywebhook.txt

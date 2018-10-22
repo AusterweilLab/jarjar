@@ -222,7 +222,10 @@ def main():
         sys.exit()
 
     # parse args
-    MESSAGE = ' '.join(ARGS.message)
+    if not sys.stdin.isatty():
+       MESSAGE = "``` "+ ' '.join(sys.stdin.readlines()) + '```'
+    else:
+        MESSAGE = ' '.join(ARGS.message)
     WEBHOOK = ARGS.webhook
     CHANNEL = ARGS.channel
     PROGRAM = ' '.join(ARGS.program)
