@@ -8,9 +8,14 @@ __pycache__/
 *.sublime-project
 build/
 dist/
+lib/
 install.log
 jarjar-shell
 jarjar.egg-info/
 test.py
 update-pip.sh
 venv*/
+scripts-2.7/
+jarjar-3.0.tar.gz
+jarjar-3.1-py2.7.egg
+mywebhook.txt

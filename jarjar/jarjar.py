@@ -3,7 +3,8 @@
 import copy
 import datetime
 import functools
-import imp
+import importlib
+import sys
 import json
 import os
 import requests
@@ -24,6 +25,23 @@ _NO_MESSAGE_WARN = (
     .replace('  ', ' ')
 )
 
+def load_module_from_file(modname: str, filename: str):
+    filename = os.path.abspath(os.path.expanduser(os.path.expandvars(filename)))
+    if not os.path.isfile(filename):
+        raise FileNotFoundError(f"Config file not found: {filename}")
+
+    loader = importlib.machinery.SourceFileLoader(modname, filename)
+    spec = importlib.util.spec_from_loader(modname, loader)
+    if spec is None:
+        raise ImportError(f"Could not create spec for {modname} from {filename}")
+
+    module = importlib.util.module_from_spec(spec)
+    loader.exec_module(module)
+
+    # Register so it can be re-imported elsewhere if needed
+    sys.modules[modname] = module
+    return module
+
 
 def read_config_file(filename):
     """Find expected fields in a config file.
@@ -31,7 +49,7 @@ def read_config_file(filename):
     Return nones if it does not exist, otherwise, load the file as a module
     and getattr for each.
     """
-    # red recursively
+    # read recursively
     if isinstance(filename, (list, tuple)):
         return [read_config_file(i) for i in filename]
 
@@ -40,7 +58,7 @@ def read_config_file(filename):
         return dict((i, None) for i in _EXPECTED_CONFIG)
 
     # laod it up, remove compiled file if its there
-    cfg = imp.load_source('_tmp', filename)
+    cfg = load_module_from_file('_tmp', filename)
     try:
         os.remove(filename + 'c', )
     except OSError:
@@ -188,7 +206,7 @@ class jarjar(object):
             open(filename, 'a').close()
 
         # load config
-        cfg = imp.load_source('_jarjar', filename)
+        cfg = load_module_from_file('_jarjar', filename)
 
         # assign variables
         for field in ['channel', 'webhook', 'message']:
